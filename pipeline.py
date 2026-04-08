@@ -10,7 +10,7 @@ from typing import Optional, List, Dict
 import requests
 
 import elevenlabs_client as el
-import ghl_client as ghl
+import ghl_client_v2 as ghl          # nuovo GHL multi sub-account ($297 Unlimited)
 from config import (
     PROCESSED_FILE, TIMEZONE, ENABLE_PROMPT_OPTIMIZATION,
     ELEVENLABS_API_KEY, ELEVENLABS_BASE_URL,
@@ -118,7 +118,7 @@ def _infer_operatore_from_contact(contact: Optional[dict]) -> Optional[str]:
 def process_batch(batch_id: str) -> dict:
     log.info("Processing batch %s", batch_id)
     batch = el.get_batch(batch_id)
-    batch_name = batch.get("name", batch_id)
+    batch_name = batch.get("name") or batch_id or "unknown-batch"
     agent_id = batch["agent_id"]
     phone_number_id = batch["phone_number_id"]
 
@@ -180,30 +180,30 @@ def process_batch(batch_id: str) -> dict:
         contact_by_phone = ghl.find_by_phone(phone)
         operatore = _infer_operatore_from_contact(contact_by_phone)
 
-        # ── Push a GHL — solo contatti con engagement reale ──────────────────
-        # none/low = solo tag (già fatto sopra), niente push completo → meno 429
+        # ── Push a GHL — TUTTI i contatti con chiamata completed ─────────────
+        # none → aggiorna solo campi (esito, score, data) — visibile nelle Smart List
+        # low/medium/high/appointment → push completo con nota, stage, task
         ghl_result = {}
-        if analysis["interest_level"] not in ("none",) or analysis["appointment_scheduled"]:
-            try:
-                ghl_result = ghl.push_call_result(
-                    company_name=info["azienda"],
-                    esito=analysis["interest_level"],
-                    riassunto=analysis.get("transcript_summary", ""),
-                    durata=durata,
-                    data_chiamata=oggi,
-                    batch_name=batch_name,
-                    conv_id=conv_id,
-                    email_ottenuta=analysis.get("email_ottenuta"),
-                    nome_referente=analysis.get("nome_referente"),
-                    interest_level=analysis["interest_level"],
-                    appointment_scheduled=analysis["appointment_scheduled"],
-                    transcript_summary=analysis.get("transcript_summary"),
-                    operatore=operatore,
-                    quando_richiamare=analysis.get("appointment_date_time"),
-                )
-            except Exception as e:
-                log.error("GHL push failed %s: %s", info["azienda"], e)
-                ghl_result = {"status": "error", "error": str(e)}
+        try:
+            ghl_result = ghl.push_call_result(
+                company_name=info["azienda"],
+                esito=analysis["interest_level"],
+                riassunto=analysis.get("transcript_summary", ""),
+                durata=durata,
+                data_chiamata=oggi,
+                batch_name=batch_name,
+                conv_id=conv_id,
+                email_ottenuta=analysis.get("email_ottenuta"),
+                nome_referente=analysis.get("nome_referente"),
+                interest_level=analysis["interest_level"],
+                appointment_scheduled=analysis["appointment_scheduled"],
+                transcript_summary=analysis.get("transcript_summary"),
+                operatore=operatore,
+                quando_richiamare=analysis.get("appointment_date_time"),
+            )
+        except Exception as e:
+            log.error("GHL push failed %s: %s", info["azienda"], e)
+            ghl_result = {"status": "error", "error": str(e)}
 
         result = {
             "azienda": info["azienda"],
@@ -412,6 +412,10 @@ def process_single_conversations():
                 except Exception as e:
                     log.warning("tag_called failed %s: %s", phone, e)
 
+                # Inferisci operatore dal contatto
+                contact_by_phone = ghl.find_by_phone(phone)
+                single_operatore = _infer_operatore_from_contact(contact_by_phone)
+
                 try:
                     ghl.push_call_result(
                         company_name=azienda,
@@ -419,7 +423,7 @@ def process_single_conversations():
                         riassunto=analysis.get("transcript_summary", ""),
                         durata=durata,
                         data_chiamata=oggi,
-                        batch_name=f"single-outbound",
+                        batch_name="single-outbound",
                         conv_id=conv_id,
                         email_ottenuta=analysis.get("email_ottenuta"),
                         nome_referente=analysis.get("nome_referente"),
@@ -427,6 +431,7 @@ def process_single_conversations():
                         appointment_scheduled=analysis["appointment_scheduled"],
                         transcript_summary=analysis.get("transcript_summary"),
                         quando_richiamare=analysis.get("appointment_date_time"),
+                        operatore=single_operatore,
                     )
                 except Exception as e:
                     log.error("GHL push failed for single conv %s: %s", conv_id, e)
