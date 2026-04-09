@@ -257,13 +257,14 @@ def process_batch(batch_id: str) -> dict:
         try:
             import prompt_optimizer
             analysis_batch = prompt_optimizer.analyze_batch(transcript_data)
-            prompt_fixes = prompt_optimizer.optimize_prompt(agent_id, analysis_batch)
+            # Passa esempi di transcript (testo grezzo) per fix chirurgici via Claude
+            transcript_examples = [t.get("transcript", "") for t in transcript_data if t.get("transcript")]
+            prompt_fixes = prompt_optimizer.optimize_prompt(agent_id, analysis_batch, transcript_examples)
             if prompt_fixes:
                 log.info("Prompt optimized: %s", prompt_fixes)
         except Exception as e:
             log.error("Prompt optimization failed: %s", e)
         try:
-            import prompt_optimizer
             tts_changes = prompt_optimizer.optimize_tts(agent_id, results)
             if tts_changes:
                 log.info("TTS tuned: %s", tts_changes)
@@ -454,8 +455,9 @@ def process_single_conversations():
         try:
             import prompt_optimizer
             batch_analysis = prompt_optimizer.analyze_batch(all_transcript_data)
+            transcript_examples = [t.get("transcript", "") for t in all_transcript_data if t.get("transcript")]
             for agent_id in MONITORED_AGENTS:
-                prompt_optimizer.optimize_prompt(agent_id, batch_analysis)
+                prompt_optimizer.optimize_prompt(agent_id, batch_analysis, transcript_examples)
         except Exception as e:
             log.error("Prompt optimization failed: %s", e)
 
