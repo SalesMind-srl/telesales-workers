@@ -11,11 +11,11 @@ GHL_BASE_URL = "https://services.leadconnectorhq.com"
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
-# ─── GHL Pipeline ────────────────────────────────────────────────────────────
-# Pipeline: "Telesales"
+# ─── GHL Pipeline principale (fallback) ──────────────────────────────────────
+# Pipeline globale "Telesales" — usata se non è configurata quella del setter
 GHL_PIPELINE_ID = "MwQdkvIh5UNltNAVRpFn"
 
-# Stage IDs
+# Stage IDs (pipeline "Telesales" — stessi stage in tutte le pipeline)
 GHL_STAGE_LEAD_NUOVO        = "b472183c-d649-4ed0-b332-a31fc066809f"  # 1. Lead Nuovo
 GHL_STAGE_AI_QUALIFICA      = "637db8a4-d39e-4cc3-8688-55baa17e3450"  # 2. AI Qualifica
 GHL_STAGE_SETTER_CHIAMA     = "e9226e3d-1079-4159-8cba-f9c552223588"  # 3. Setter Chiama
@@ -23,6 +23,24 @@ GHL_STAGE_APPUNTAMENTO      = "a537d54c-d097-495c-ad0c-c5f95d27a306"  # 4. Appun
 GHL_STAGE_CLOSER_DEMO       = "e7c3aae3-02ce-4521-a8fd-319110cbb748"  # 5. Closer / Demo
 GHL_STAGE_CHIUSO_VINTO      = "3f041bac-ab96-4509-84a3-f7eaf49e075d"  # 6. Chiuso Vinto
 GHL_STAGE_NURTURE           = "17ec3afb-221c-4d39-9f5e-9171ec08a5cb"  # 7. Nurture
+
+# ─── Pipeline per setter (una per cliente) ───────────────────────────────────
+# Imposta le env vars su Railway dopo aver creato le pipeline da GHL UI.
+# Finché non sono configurate, usa la pipeline principale "Telesales".
+# Stage names sono identici — il backend usa gli stage della pipeline giusta.
+# HOW TO: GHL → Opportunities → Pipelines → + New Pipeline → copia ID → Railway env var
+SETTER_PIPELINE_MAP = {
+    "Setter - Filippo": os.getenv("PIPELINE_FILIPPO", GHL_PIPELINE_ID),
+    "Setter - Adriana": os.getenv("PIPELINE_ADRIANA", GHL_PIPELINE_ID),
+    "Setter - Edoardo": os.getenv("PIPELINE_EDOARDO", GHL_PIPELINE_ID),
+    "Setter - Claudia": os.getenv("PIPELINE_CLAUDIA", GHL_PIPELINE_ID),
+    "Setter - Laura":   os.getenv("PIPELINE_LAURA",   GHL_PIPELINE_ID),
+}
+
+# Stage IDs per pipeline setter — popolare dopo creazione pipeline
+# Struttura: { pipeline_id: { stage_name: stage_id } }
+# Finché vuoto, usa gli stage della pipeline principale sopra.
+SETTER_STAGE_MAP: dict = {}
 
 # ─── GHL Custom Field IDs ────────────────────────────────────────────────────
 # Campi chiamata AI
@@ -53,12 +71,11 @@ GHL_FIELD_DATA_PROSSIMA_CHIAMATA= "GeomTH74lnioAF3V9V5Z"  # Data Prossima Chiama
 # ElevenLabs data_collection: interest_level = high / medium / low / none
 INTEREST_TO_GHL_ESITO = {
     "high":   "Interessato",
-    "medium": "Email Fornita",     # o email raccolta
+    "medium": "Email Fornita",
     "low":    "Non Interessato",
     "none":   "Non Risposto / IVR",
 }
 
-# ElevenLabs evaluation: appointment_scheduled = success → override esito
 ESITO_TO_GHL = {
     "appointment": "Appuntamento Fissato",
     "high":        "Interessato",
@@ -75,17 +92,26 @@ ESITO_TO_GHL = {
     "NUMERO_ERRATO":      "Numero Errato",
 }
 
-# ElevenLabs interest_level → GHL Pipeline Stage
+# ElevenLabs interest_level → Score Lead (0-100)
+INTEREST_TO_SCORE = {
+    "appointment": 100,
+    "high":        75,
+    "medium":      40,
+    "low":         10,
+    "none":        0,
+}
+
+# ElevenLabs interest_level → GHL Pipeline Stage (pipeline principale)
+# Le pipeline setter usano gli stessi nomi stage ma ID diversi — risolti a runtime.
 INTEREST_TO_STAGE = {
-    "high":        GHL_STAGE_SETTER_CHIAMA,   # Setter Chiama → task urgente
-    "medium":      GHL_STAGE_AI_QUALIFICA,    # AI Qualifica → email follow-up
-    "low":         GHL_STAGE_NURTURE,         # Nurture → forse più avanti
-    "none":        GHL_STAGE_NURTURE,         # Nurture
-    "appointment": GHL_STAGE_APPUNTAMENTO,    # Appuntamento!
+    "high":        GHL_STAGE_SETTER_CHIAMA,   # 3. Setter Chiama
+    "medium":      GHL_STAGE_AI_QUALIFICA,    # 2. AI Qualifica
+    "low":         GHL_STAGE_NURTURE,         # 7. Nurture
+    "none":        None,                       # Non risposto → non spostare
+    "appointment": GHL_STAGE_APPUNTAMENTO,    # 4. Appuntamento
 }
 
 # ─── Operatori (per tag/campo) ────────────────────────────────────────────────
-# Mappa tag GHL → valore campo Operatore Assegnato
 TAG_TO_OPERATORE = {
     "cliente-filippo": "Setter - Filippo",
     "cliente-adriana": "Setter - Adriana",
@@ -94,26 +120,40 @@ TAG_TO_OPERATORE = {
     "cliente-laura":   "Setter - Laura",
 }
 
+# Mappa tag → valore campo "Cliente Assegnato"
+TAG_TO_CLIENTE = {
+    "cliente-filippo": "Filippo",
+    "cliente-adriana": "Adriana",
+    "cliente-edoardo": "Edoardo",
+    "cliente-claudia": "Claudia",
+    "cliente-laura":   "Laura",
+}
+
+# Mappa tag → quale pipeline usare per il contatto
+TAG_TO_PIPELINE = {tag: SETTER_PIPELINE_MAP[op] for tag, op in TAG_TO_OPERATORE.items()}
+
 # ─── Paths & Scheduler ───────────────────────────────────────────────────────
 DATA_DIR = Path(os.getenv("DATA_DIR", Path(__file__).parent / "data"))
 DATA_DIR.mkdir(exist_ok=True)
-PROCESSED_FILE    = DATA_DIR / "processed_batches.json"
+PROCESSED_FILE     = DATA_DIR / "processed_batches.json"
 GHL_CONTACTS_CACHE = DATA_DIR / "contacts_cache.json"
 
-CHECK_INTERVAL_MINUTES = int(os.getenv("CHECK_INTERVAL_MINUTES", "10"))
+CHECK_INTERVAL_MINUTES = int(os.getenv("CHECK_INTERVAL_MINUTES", "5"))
 TIMEZONE = "Europe/Rome"
 
 FUZZY_THRESHOLD = 0.82
-GHL_SLEEP = 0.5
+GHL_SLEEP = 0.3   # ridotto da 0.5 — retry gestisce i 429
 
-# ─── Prompt optimization (monitor only, no auto-editing) ────────────────────
+# ─── Prompt optimization ────────────────────────────────────────────────────
 ENABLE_PROMPT_OPTIMIZATION = os.getenv("ENABLE_PROMPT_OPTIMIZATION", "true").lower() == "true"
 
-# ─── Monitored agents (for single outbound conversation processing) ──────────
-# Comma-separated agent IDs. These agents' individual conversations will be
-# processed by the pipeline (GHL sync, optimizer analysis) alongside batch calls.
-# Set via env var MONITORED_AGENT_IDS or defaults to Marco IT + Cribis
+# ─── Monitored agents (single outbound — non batch) ──────────────────────────
+# Usato SOLO per chiamate singole outbound (non batch).
+# I batch vengono rilevati automaticamente dal workspace, indipendentemente dall'agente.
+# Aggiungere qui tutti gli agenti attivi che fanno chiamate singole (non batch).
+# Trovare agent ID: ElevenLabs UI → Agents → seleziona agente → copia ID dall'URL.
 MONITORED_AGENT_IDS = os.getenv(
     "MONITORED_AGENT_IDS",
+    # Marco - Prequalifica Telesales + Outbound Cribis (account marco_ai)
     "agent_1901kme2h64pfmcb53ggjban6j8x,agent_3201km1eh8yne4r9c1dakbrbdgm5"
 )

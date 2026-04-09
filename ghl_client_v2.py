@@ -443,17 +443,18 @@ def push_call_result(
 
     # ── 3. Nota ───────────────────────────────────────────────────────────────
     note_lines = [
-        f"[AI Call] {data_chiamata} | {batch_name}",
-        f"Esito: {ghl_esito} | Durata: {durata}s",
+        f"Chiamata AI — {data_chiamata}",
+        f"Esito: {ghl_esito}",
     ]
-    if summary:
-        note_lines.append(f"Riassunto: {summary[:500]}")
     if email_val:
         note_lines.append(f"Email: {email_val}")
     if nome_referente:
         note_lines.append(f"Referente: {nome_referente}")
-    if note_per_agente:
-        note_lines.append(f"Note: {note_per_agente}")
+    if summary:
+        # Keep it short — just first sentence or 120 chars
+        short = summary.split(".")[0].strip()[:120]
+        if short:
+            note_lines.append(short)
     note_id = add_note(contact_id, "\n".join(note_lines), token)
     actions["note_id"] = note_id
 
