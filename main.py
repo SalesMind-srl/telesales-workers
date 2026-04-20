@@ -174,6 +174,19 @@ def prompt_changes():
 
 # ─── Demo Live Landing Page ──────────────────────────────────────────────────
 
+# Demo conversation simulator for fallback
+DEMO_TRANSCRIPT = [
+    {"role": "agent", "message": "Ciao! Sono Marco, l'AI commerciale di Telesales. Posso raccontarti dei nostri 9 prodotti, farti vedere i numeri di questa settimana, o risponderti qualunque cosa. Su cosa vuoi che ti spieghi?"},
+    {"role": "client", "message": "Buongiorno, mi interessa capire come funziona il vostro sistema AI"},
+    {"role": "agent", "message": "Perfetto! Utilizziamo il machine learning per automatizzare le tue campagne di outbound. In pratica, i nostri agenti AI fanno 500 chiamate al giorno, qualificano i lead in tempo reale, e creano appointment direttamente nel tuo CRM. Non devi più assumere setter."},
+    {"role": "client", "message": "Quanto costa?"},
+    {"role": "agent", "message": "Dipendiede dal volume di chiamate, ma in media 0.50€ a chiamata. Conviene quando hai campagne sopra i 1000 lead al mese. Vuoi che ti mostri dei case study?"},
+    {"role": "client", "message": "Sì, mi interesserebbe"},
+    {"role": "agent", "message": "Abbiamo lavorato con 3 aziende B2B a Milano. Una ha aumentato i closed deal del 45% riducendo i costi del 30%. Ti piacerebbe fare una call con il nostro commerciale per discutere il tuo caso specifico?"},
+    {"role": "client", "message": "Sì, mi interessa. Quando siete disponibili?"},
+    {"role": "agent", "message": "Domani alle 15:00 o dopodomani alle 10:00. Quale vi va bene?"},
+]
+
 @app.post("/demo/start")
 def demo_start(phone_number: str = "+393925920000", company: str = "Demo Company"):
     """Avvia una singola conversazione demo per la landing page."""
@@ -198,22 +211,34 @@ def demo_start(phone_number: str = "+393925920000", company: str = "Demo Company
             }
         }
 
-        result = start_outbound_conversation(
-            agent_id=agent_id,
-            phone_number_id=phone_number_id,
-            to_number=phone_number,
-            original_client_data=client_data,
-            note_per_agente="Demo dalla landing - non registrare"
-        )
-
-        conv_id = result.get("conversation_id")
-        log.info(f"Demo conversation started: {conv_id}")
-
-        return {
-            "status": "started",
-            "conversation_id": conv_id,
-            "agent_id": agent_id
-        }
+        try:
+            result = start_outbound_conversation(
+                agent_id=agent_id,
+                phone_number_id=phone_number_id,
+                to_number=phone_number,
+                original_client_data=client_data,
+                note_per_agente="Demo dalla landing - non registrare"
+            )
+            conv_id = result.get("conversation_id")
+            log.info(f"Demo conversation started: {conv_id}")
+            return {
+                "status": "started",
+                "conversation_id": conv_id,
+                "agent_id": agent_id,
+                "is_real": True
+            }
+        except Exception as el_error:
+            log.warning(f"ElevenLabs call failed, using demo simulation: {el_error}")
+            # Fallback: use simulated demo
+            import uuid
+            demo_id = f"demo_{uuid.uuid4().hex[:12]}"
+            return {
+                "status": "started",
+                "conversation_id": demo_id,
+                "agent_id": agent_id,
+                "is_real": False,
+                "demo_mode": True
+            }
     except Exception as e:
         log.error(f"Demo start failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -221,8 +246,27 @@ def demo_start(phone_number: str = "+393925920000", company: str = "Demo Company
 
 @app.get("/demo/status/{conv_id}")
 def demo_status(conv_id: str):
-    """Ritorna lo stato, transcript e audio della conversazione."""
+    """Ritorna lo stato e transcript della conversazione."""
     try:
+        # Check if demo mode
+        if conv_id.startswith("demo_"):
+            # Return demo transcript
+            lines = []
+            for t in DEMO_TRANSCRIPT:
+                role = "Marco" if t.get("role") == "agent" else "Tu"
+                msg = t.get("message", "")
+                lines.append({"role": role, "message": msg})
+
+            return {
+                "status": "completed",
+                "conversation_id": conv_id,
+                "duration_secs": 45,
+                "transcript": lines,
+                "is_live": False,
+                "demo_mode": True
+            }
+
+        # Real ElevenLabs conversation
         from elevenlabs_client import get_conversation
 
         conv = get_conversation(conv_id)
@@ -238,15 +282,13 @@ def demo_status(conv_id: str):
 
         metadata = conv.get("metadata", {})
         duration = metadata.get("call_duration_secs", 0)
-        recording_url = conv.get("recording_url") or metadata.get("recording_url") or None
 
         return {
             "status": status,
             "conversation_id": conv_id,
             "duration_secs": duration,
             "transcript": lines,
-            "is_live": status == "active",
-            "recording_url": recording_url
+            "is_live": status == "active"
         }
     except Exception as e:
         log.error(f"Demo status failed: {e}", exc_info=True)
