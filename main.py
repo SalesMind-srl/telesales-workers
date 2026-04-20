@@ -172,6 +172,85 @@ def prompt_changes():
     return json.loads(changes_file.read_text())
 
 
+# ─── Demo Live Landing Page ──────────────────────────────────────────────────
+
+@app.post("/demo/start")
+def demo_start(phone_number: str = "+393925920000", company: str = "Demo Company"):
+    """Avvia una singola conversazione demo per la landing page."""
+    try:
+        from elevenlabs_client import start_outbound_conversation
+        from config import MONITORED_AGENT_IDS
+
+        agent_ids = MONITORED_AGENT_IDS.split(",")
+        if not agent_ids:
+            raise ValueError("No monitored agents configured")
+
+        agent_id = agent_ids[0].strip()
+        phone_number_id = "p:7d44d4b9a5704d108db27e1ce4ccb4f6"
+
+        client_data = {
+            "dynamic_variables": {
+                "nome_azienda": company,
+                "categoria": "Demo",
+                "citta": "Roma",
+                "nome_contatto": "Demo Prospect",
+                "note": "Demo landing page"
+            }
+        }
+
+        result = start_outbound_conversation(
+            agent_id=agent_id,
+            phone_number_id=phone_number_id,
+            to_number=phone_number,
+            original_client_data=client_data,
+            note_per_agente="Demo dalla landing - non registrare"
+        )
+
+        conv_id = result.get("conversation_id")
+        log.info(f"Demo conversation started: {conv_id}")
+
+        return {
+            "status": "started",
+            "conversation_id": conv_id,
+            "agent_id": agent_id
+        }
+    except Exception as e:
+        log.error(f"Demo start failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/demo/status/{conv_id}")
+def demo_status(conv_id: str):
+    """Ritorna lo stato e il transcript parziale della conversazione."""
+    try:
+        from elevenlabs_client import get_conversation
+
+        conv = get_conversation(conv_id)
+        status = conv.get("status", "unknown")
+
+        transcript = conv.get("transcript", [])
+        lines = []
+        for t in transcript:
+            role = "Marco" if t.get("role") == "agent" else "Tu"
+            msg = t.get("message", "")
+            if msg and msg != "None":
+                lines.append({"role": role, "message": msg})
+
+        metadata = conv.get("metadata", {})
+        duration = metadata.get("call_duration_secs", 0)
+
+        return {
+            "status": status,
+            "conversation_id": conv_id,
+            "duration_secs": duration,
+            "transcript": lines,
+            "is_live": status == "active"
+        }
+    except Exception as e:
+        log.error(f"Demo status failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ─── Instantly webhook ────────────────────────────────────────────────────────
 
 @app.post("/instantly-webhook")
