@@ -221,7 +221,7 @@ def demo_start(phone_number: str = "+393925920000", company: str = "Demo Company
 
 @app.get("/demo/status/{conv_id}")
 def demo_status(conv_id: str):
-    """Ritorna lo stato e il transcript parziale della conversazione."""
+    """Ritorna lo stato, transcript e audio della conversazione."""
     try:
         from elevenlabs_client import get_conversation
 
@@ -238,13 +238,15 @@ def demo_status(conv_id: str):
 
         metadata = conv.get("metadata", {})
         duration = metadata.get("call_duration_secs", 0)
+        recording_url = conv.get("recording_url") or metadata.get("recording_url") or None
 
         return {
             "status": status,
             "conversation_id": conv_id,
             "duration_secs": duration,
             "transcript": lines,
-            "is_live": status == "active"
+            "is_live": status == "active",
+            "recording_url": recording_url
         }
     except Exception as e:
         log.error(f"Demo status failed: {e}", exc_info=True)
