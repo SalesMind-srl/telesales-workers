@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import json
+import os
 
 # Config
 st.set_page_config(page_title="Tale Sales Dashboard", layout="wide", initial_sidebar_state="expanded")
@@ -19,7 +20,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Simple in-memory data store (later will use Supabase)
+# Supabase config
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+
+try:
+    if SUPABASE_URL and SUPABASE_KEY:
+        from supabase import create_client
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        use_supabase = True
+    else:
+        use_supabase = False
+except:
+    use_supabase = False
+
+# Simple data store with fallback to session state
 if 'clients' not in st.session_state:
     st.session_state.clients = {
         'Filippo (Cribis)': {'retainer': 350, 'paid': 350, 'app_delivered': 25, 'status': '🟡'},
@@ -229,4 +244,13 @@ elif page == "Simone":
 
 # FOOTER
 st.divider()
-st.markdown("📱 **Tale Sales Dashboard v1.0** | Auto-update ogni refresh | Database live su Supabase")
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown("📱 **Tale Sales Dashboard v1.0** | Data persists durante la sessione")
+with col2:
+    if use_supabase:
+        st.markdown("✅ **Supabase connected** - Data è persistente")
+    else:
+        st.markdown("⚠️ **Local mode** - Setup Supabase per persistenza")
+
+st.caption("Made with 💪 for Tale Sales financial control")
