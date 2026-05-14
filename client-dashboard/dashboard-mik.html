@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Telesales Client Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink-0: #050509;
+  --ink-1: #0a0a12;
+  --ink-2: #10101c;
+  --line:  rgba(255,255,255,.08);
+  --gold-2: #d4af37;
+  --blue-1: #4d78e8;
+  --live: #22c55e;
+  --fg:      #f5f3ee;
+  --fg-soft: #c9c8c0;
+  --fg-dim:  #8a8a80;
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --font-display: "Fraunces", serif;
+  --font-sans: "Geist", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--ink-0); color: var(--fg); font: 14px/1.5 var(--font-sans); }
+html, body, #root { height: 100%; }
+
+.app { display: flex; height: 100vh; background: var(--ink-0); }
+
+/* SIDEBAR */
+.sidebar {
+  width: 250px; background: var(--ink-1); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; padding: 20px;
+  overflow-y: auto;
+}
+.sb-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 30px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--fg-dim);
+}
+.sb-head svg { width: 24px; height: 24px; stroke: var(--gold-2); }
+
+.sb-section {
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-dim);
+  margin-top: 24px; margin-bottom: 12px;
+}
+.sb-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 6px;
+  border: 1px solid transparent; border-radius: 10px; cursor: pointer;
+  color: var(--fg-soft); font-size: 14px; transition: all .2s var(--ease);
+}
+.sb-item:hover { background: var(--ink-2); color: var(--fg); }
+.sb-item.active { background: var(--ink-2); color: var(--fg); border-color: var(--gold-2); box-shadow: inset 0 0 0 1px var(--gold-2); }
+.sb-item .ic { width: 18px; height: 18px; stroke-width: 2; flex-shrink: 0; }
+.sb-item.active .ic { stroke: var(--gold-2); }
+.sb-item .count { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--fg-dim); }
+.sb-item.active .count { color: var(--gold-2); }
+
+.sb-foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 12px; }
+.av { width: 40px; height: 40px; border-radius: 10px; background: var(--gold-2); color: var(--ink-0);
+  display: grid; place-items: center; font-weight: 600; font-size: 16px; flex-shrink: 0; }
+.sb-foot > div:last-child { min-width: 0; }
+.sb-foot .n { font-weight: 500; color: var(--fg); font-size: 13px; }
+.sb-foot .r { font-size: 11px; color: var(--fg-dim); }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 32px; border-bottom: 1px solid var(--line);
+  background: var(--ink-0);
+}
+.topbar h1 { font-family: var(--font-display); font-size: 36px; font-weight: 300;
+  letter-spacing: -.01em; color: var(--fg); }
+.topbar .sub { font-size: 13px; color: var(--fg-soft); margin-top: 4px; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+
+.search {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px;
+  color: var(--fg-soft); font-size: 13px;
+}
+.search kbd { font-family: var(--font-mono); font-size: 11px; color: var(--fg-dim); }
+
+.btn {
+  padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s var(--ease);
+}
+.btn-primary { background: var(--gold-2); color: var(--ink-0); }
+.btn-primary:hover { background: #e8c86a; }
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; padding: 32px; background: var(--ink-0); }
+
+.view { display: none; animation: fadeIn .3s var(--ease); }
+.view.on { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.kpi {
+  padding: 20px; background: var(--ink-1); border: 1px solid var(--line); border-radius: 14px;
+}
+.kpi.primary { border-color: rgba(212,175,55,.28); box-shadow: inset 0 0 0 1px rgba(212,175,55,.08); }
+.kpi .lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 8px; }
+.kpi .n { font-family: var(--font-display); font-size: 36px; font-weight: 300; color: var(--gold-2); line-height: 1; margin-bottom: 8px; }
+.kpi .delta { font-size: 12px; font-family: var(--font-mono); }
+.kpi .delta.pos { color: var(--live); }
+.kpi .delta.neg { color: #ef4444; }
+.spark { width: 100%; height: 24px; margin-top: 12px; }
+
+.grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+@media (max-width: 1200px) { .grid-main { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--ink-1); border: 1px solid var(--line); border-radius: 14px; padding: 20px;
+}
+.panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.panel-head h3 { font-family: var(--font-display); font-size: 20px; font-weight: 400; }
+.meta { font-size: 12px; color: var(--fg-soft); }
+.meta .live { color: var(--live); }
+
+.call-row {
+  display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 10px;
+  background: rgba(255,255,255,.02); border: 1px solid var(--line); border-radius: 10px;
+  transition: all .2s var(--ease); cursor: pointer;
+}
+.call-row:hover { background: rgba(212,175,55,.06); border-color: rgba(212,175,55,.2); }
+.call-av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 14px; font-weight: 600; color: var(--ink-0); flex-shrink: 0; }
+.call-av.gold { background: var(--gold-2); }
+.call-av.blue { background: var(--blue-1); }
+.call-body { flex: 1; min-width: 0; }
+.call-body .n { font-weight: 500; color: var(--fg); font-size: 14px; margin-bottom: 2px; }
+.call-body .s { font-size: 12px; color: var(--fg-dim); }
+.call-time { font-family: var(--font-mono); font-size: 12px; color: var(--fg-dim); white-space: nowrap; }
+
+.waveform { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin-top: 16px; }
+.waveform span { flex: 1; background: linear-gradient(180deg, var(--gold-2), rgba(212,175,55,.4));
+  border-radius: 2px; opacity: .8; }
+
+.agent-card {
+  display: flex; align-items: center; gap: 12px; padding: 16px;
+  background: rgba(255,255,255,.02); border: 1px solid var(--line); border-radius: 12px;
+  margin-bottom: 12px;
+}
+.agent-av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 14px; font-weight: 600; color: white; background: var(--blue-1); flex-shrink: 0; }
+.agent-info { flex: 1; min-width: 0; }
+.agent-name { font-weight: 500; color: var(--fg); margin-bottom: 2px; }
+.agent-role { font-size: 12px; color: var(--fg-dim); }
+.agent-status { margin-left: auto; padding: 4px 10px; border-radius: 999px; font-size: 11px;
+  font-weight: 500; background: rgba(34,197,94,.12); color: var(--live); white-space: nowrap; }
+
+.pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.stage { background: var(--ink-1); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.stage h4 { display: flex; align-items: center; justify-content: space-between; font-size: 13px;
+  font-weight: 600; letter-spacing: .05em; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.stage .c { font-size: 11px; color: var(--fg-dim); }
+
+.lead-card {
+  padding: 12px; background: rgba(255,255,255,.02); border: 1px solid var(--line);
+  border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all .2s var(--ease);
+}
+.lead-card:hover { background: rgba(212,175,55,.06); border-color: rgba(212,175,55,.2); }
+.lead-card.hot { border-color: var(--gold-2); background: rgba(212,175,55,.08); }
+.lead-card .az { font-weight: 500; color: var(--fg); margin-bottom: 4px; }
+.lead-card .mt { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg-dim); }
+
+.table-wrapper { overflow-x: auto; }
+.crm-table { width: 100%; }
+.crm-head, .crm-row { display: grid; grid-template-columns: 1.4fr 1.2fr .8fr .7fr 1.3fr .6fr;
+  gap: 14px; padding: 12px 6px; align-items: center; border-bottom: 1px solid var(--line); }
+.crm-head { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-dim); }
+.crm-row { font-size: 13px; cursor: pointer; transition: background .15s; }
+.crm-row:hover { background: rgba(212,175,55,.03); }
+
+.crm-contact { display: flex; gap: 10px; align-items: center; }
+.crm-ava { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#1a2850,#2d3e6a);
+  color: var(--gold-2); display: grid; place-items: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.crm-name { font-weight: 500; }
+.crm-role { font-size: 11px; color: var(--fg-dim); }
+
+.sentiment { font-size: 24px; padding: 8px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      <span>CONSOLE · v2.4</span>
+    </div>
+
+    <div class="sb-section">CORE</div>
+    <div class="sb-item active" data-view="dashboard">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9v6M15 12v3"/></svg>
+      <span>Dashboard</span>
+    </div>
+    <div class="sb-item" data-view="calls">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>Chiamate</span><span class="count">3 live</span>
+    </div>
+    <div class="sb-item" data-view="agents">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4"/><circle cx="19" cy="7" r="4"/><path d="M23 21a4 4 0 0 0-4-4h-2"/></svg>
+      <span>Agenti AI</span><span class="count">4</span>
+    </div>
+    <div class="sb-item" data-view="pipeline">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg>
+      <span>Pipeline</span><span class="count">72</span>
+    </div>
+
+    <div class="sb-section">ALTRO</div>
+    <div class="sb-item" data-view="settings">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Impostazioni</span>
+    </div>
+
+    <div class="sb-foot">
+      <div class="av">N</div>
+      <div>
+        <div class="n">Niccolò P.</div>
+        <div class="r">ADMIN</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="viewTitle">Dashboard</h1>
+        <div class="sub" id="viewSub">Lunedì 27 aprile · 09:14 · tutto in ordine</div>
+      </div>
+      <div class="topbar-right">
+        <div class="search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <span>Cerca azienda, contatto, call…</span>
+          <kbd>⌘K</kbd>
+        </div>
+        <button class="btn btn-primary">
+          <span>+</span><span>Nuova campagna</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- DASHBOARD VIEW -->
+      <section class="view on" data-view="dashboard">
+        <div class="kpi-row">
+          <div class="kpi primary">
+            <div class="lbl">Oggi · Chiamate</div>
+            <div class="n">217</div>
+            <div class="delta pos">+24% vs ieri</div>
+            <svg class="spark" viewBox="0 0 80 26" preserveAspectRatio="none"><polyline fill="none" stroke="#d4af37" stroke-width="1.5" points="0,20 10,16 20,18 30,12 40,14 50,8 60,10 70,4 80,6"/></svg>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Lead qualificati</div>
+            <div class="n">14</div>
+            <div class="delta pos">+3 nell'ultima ora</div>
+            <svg class="spark" viewBox="0 0 80 26" preserveAspectRatio="none"><polyline fill="none" stroke="#4d78e8" stroke-width="1.5" points="0,22 10,20 20,18 30,20 40,16 50,14 60,12 70,10 80,8"/></svg>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Conv. rate</div>
+            <div class="n">6.4%</div>
+            <div class="delta pos">+0.8pt</div>
+            <svg class="spark" viewBox="0 0 80 26" preserveAspectRatio="none"><polyline fill="none" stroke="#4d78e8" stroke-width="1.5" points="0,18 10,22 20,14 30,16 40,10 50,12 60,8 70,10 80,6"/></svg>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Minuti totali</div>
+            <div class="n">842m</div>
+            <div class="delta neg">-6%</div>
+            <svg class="spark" viewBox="0 0 80 26" preserveAspectRatio="none"><polyline fill="none" stroke="#8a8a80" stroke-width="1.5" points="0,10 10,12 20,14 30,16 40,14 50,18 60,16 70,20 80,18"/></svg>
+          </div>
+        </div>
+
+        <div class="grid-main">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Chiamate in corso</h3>
+              <div class="meta"><span class="live">3 live · aggiornate in tempo reale</span></div>
+            </div>
+            <div class="call-row active-call">
+              <div class="call-av gold">M</div>
+              <div class="call-body">
+                <div class="n">Marco → Tessitura Lascialfari</div>
+                <div class="s">Outbound · discovery AI Voice · Prato</div>
+              </div>
+              <div class="call-time">00:02:14</div>
+            </div>
+            <div class="call-row">
+              <div class="call-av gold">L</div>
+              <div class="call-body">
+                <div class="n">Luna → Pelletterie Claudia</div>
+                <div class="s">Inbound · richiesta info · Firenze</div>
+              </div>
+              <div class="call-time">00:00:48</div>
+            </div>
+            <div class="call-row">
+              <div class="call-av blue">E</div>
+              <div class="call-body">
+                <div class="n">Enzo → NIPAL</div>
+                <div class="s">Outbound · follow-up · Livorno</div>
+              </div>
+              <div class="call-time">00:01:02</div>
+            </div>
+            <div style="margin-top: 16px;">
+              <div style="font-size: 13px; margin-bottom: 8px;">Waveform · linea 1</div>
+              <div class="waveform" data-wave style="height: 40px; gap: 3px;"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Agenti</h3>
+              <div class="meta"><span>4 DISPONIBILI</span></div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-av">M</div>
+              <div class="agent-info">
+                <div class="agent-name">Marco Ferretti v2.0</div>
+                <div class="agent-role">COMMERCIALE · ITALIANO</div>
+              </div>
+              <div style="margin-left: auto;">127<span class="agent-status">LIVE</span></div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-av">L</div>
+              <div class="agent-info">
+                <div class="agent-name">Luna</div>
+                <div class="agent-role">CUSTOMER CARE · IT/EN</div>
+              </div>
+              <div style="margin-left: auto;">42<span class="agent-status">LIVE</span></div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-av">E</div>
+              <div class="agent-info">
+                <div class="agent-name">Enzo</div>
+                <div class="agent-role">FOLLOW-UP · ITALIANO</div>
+              </div>
+              <div style="margin-left: auto;">28<span class="agent-status">LIVE</span></div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-av">S</div>
+              <div class="agent-info">
+                <div class="agent-name">Sofia</div>
+                <div class="agent-role">HR SCREENING · IT/EN</div>
+              </div>
+              <div style="margin-left: auto;">0 STANDBY</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Sentiment · Marco → Tessitura Lascialfari</h3>
+          </div>
+          <div style="display: flex; justify-content: space-around; padding: 20px 0;">
+            <div class="sentiment">😊</div>
+            <div style="font-size: 28px;">+0.42</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALLS VIEW -->
+      <section class="view" data-view="calls">
+        <h2 style="margin-bottom: 20px;">Ultime 24h · 217 totali · 3 live</h2>
+        <div class="panel">
+          <div style="font-size: 13px; margin-bottom: 16px; font-weight: 500;">Tutte le chiamate</div>
+          <div class="call-row" style="padding: 14px; margin-bottom: 8px;">
+            <div class="call-av gold">M</div>
+            <div class="call-body">
+              <div class="n">Marco → Argenteria Arezzo</div>
+              <div class="s">Outbound · cold · Arezzo · completata</div>
+            </div>
+            <div class="call-time">00:03:22</div>
+          </div>
+          <div class="call-row" style="padding: 14px; margin-bottom: 8px;">
+            <div class="call-av blue">L</div>
+            <div class="call-body">
+              <div class="n">Luna → SI-FUR</div>
+              <div class="s">Inbound · info pricing · Vicenza · completata</div>
+            </div>
+            <div class="call-time">00:01:48</div>
+          </div>
+          <div class="call-row" style="padding: 14px; margin-bottom: 8px;">
+            <div class="call-av gold">M</div>
+            <div class="call-body">
+              <div class="n">Marco → Conceria Santa Croce</div>
+              <div class="s">Outbound · follow-up · completata</div>
+            </div>
+            <div class="call-time">00:04:10</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGENTS VIEW -->
+      <section class="view" data-view="agents">
+        <h2 style="margin-bottom: 20px;">4 agenti · addestrati sul tuo prodotto</h2>
+        <div class="panel">
+          <div class="agent-card" style="padding: 16px; border: 1px solid var(--line);">
+            <div class="agent-av" style="width: 48px; height: 48px; font-size: 16px;">M</div>
+            <div class="agent-info">
+              <div class="agent-name" style="font-size: 16px;">Marco Ferretti v2.0</div>
+              <div class="agent-role">COMMERCIALE · ITALIANO</div>
+              <div style="font-size: 12px; color: var(--fg-dim); margin-top: 4px;">Specializzato in outbound discovery</div>
+            </div>
+            <div style="text-align: right; margin-left: auto;">
+              <div style="font-size: 20px; font-weight: 600;">127</div>
+              <span class="agent-status" style="background: rgba(34,197,94,.15);">LIVE</span>
+            </div>
+          </div>
+          <div class="agent-card" style="padding: 16px; border: 1px solid var(--line); margin-top: 12px;">
+            <div class="agent-av" style="width: 48px; height: 48px; font-size: 16px;">L</div>
+            <div class="agent-info">
+              <div class="agent-name" style="font-size: 16px;">Luna</div>
+              <div class="agent-role">CUSTOMER CARE · IT/EN</div>
+              <div style="font-size: 12px; color: var(--fg-dim); margin-top: 4px;">Support e follow-up clienti</div>
+            </div>
+            <div style="text-align: right; margin-left: auto;">
+              <div style="font-size: 20px; font-weight: 600;">42</div>
+              <span class="agent-status" style="background: rgba(34,197,94,.15);">LIVE</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PIPELINE VIEW -->
+      <section class="view" data-view="pipeline">
+        <h2 style="margin-bottom: 20px;">72 opportunità · €284k potenziale</h2>
+        <div class="pipeline">
+          <div class="stage">
+            <h4><span>Nuovi</span><span class="c">24</span></h4>
+            <div class="lead-card">
+              <div class="az">Studio Anna Masi</div>
+              <div class="mt"><span>Scraping · Pisa</span><span>€4.2k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">MOEL Srl</div>
+              <div class="mt"><span>Call inbound</span><span>€8.1k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">Argenteria Arezzo</div>
+              <div class="mt"><span>Scraping</span><span>€3.8k</span></div>
+            </div>
+          </div>
+
+          <div class="stage">
+            <h4><span>Contattati</span><span class="c">18</span></h4>
+            <div class="lead-card">
+              <div class="az">SI-FUR</div>
+              <div class="mt"><span>1 call · Marco</span><span>€6.5k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">Mida SB</div>
+              <div class="mt"><span>2 call · Marco</span><span>€12k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">Oleificio Chianti</div>
+              <div class="mt"><span>1 call · Luna</span><span>€3.9k</span></div>
+            </div>
+          </div>
+
+          <div class="stage">
+            <h4><span>Qualificati</span><span class="c">14</span></h4>
+            <div class="lead-card">
+              <div class="az">Tessitura Lascialfari</div>
+              <div class="mt"><span>LIVE · Marco</span><span>€18k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">Pelletterie Claudia</div>
+              <div class="mt"><span>LIVE · Luna</span><span>€9.8k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">Morellino</div>
+              <div class="mt"><span>Demo martedì</span><span>€22k</span></div>
+            </div>
+          </div>
+
+          <div class="stage">
+            <h4><span>Proposta</span><span class="c">11</span></h4>
+            <div class="lead-card">
+              <div class="az">NIPAL</div>
+              <div class="mt"><span>Pilot in corso</span><span>€29k</span></div>
+            </div>
+            <div class="lead-card">
+              <div class="az">Lanificio Pratese</div>
+              <div class="mt"><span>Decision mid</span><span>€44k</span></div>
+            </div>
+          </div>
+
+          <div class="stage">
+            <h4><span>Chiusi</span><span class="c">5</span></h4>
+            <div class="lead-card hot">
+              <div class="az">Officina Toscana</div>
+              <div class="mt"><span>Firmato · 3d fa</span><span>€19k</span></div>
+            </div>
+            <div class="lead-card hot">
+              <div class="az">Mobilificio Brianza</div>
+              <div class="mt"><span>Firmato · 1w</span><span>€35k</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS VIEW -->
+      <section class="view" data-view="settings">
+        <h2 style="margin-bottom: 20px;">Impostazioni · Pannello di controllo</h2>
+        <div class="panel" style="max-width: 600px;">
+          <div style="padding: 20px;">
+            <div style="font-weight: 500; margin-bottom: 16px;">Preferenze dashboard</div>
+            <div style="font-size: 13px; color: var(--fg-soft); line-height: 1.6;">
+              Dashboard impostata per Mik Cosentino<br>
+              Agenti AI attivi: 4<br>
+              Sincronizzazione: Real-time<br>
+              Ultimo aggiornamento: Proprio ora
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+  const $$ = (s) => document.querySelectorAll(s);
+  const $ = (s) => document.querySelector(s);
+
+  // TAB SWITCHING
+  $$('.sb-item[data-view]').forEach(item => {
+    item.addEventListener('click', () => {
+      const v = item.dataset.view;
+
+      // Toggli active su sidebar
+      $$('.sb-item').forEach(x => x.classList.remove('active'));
+      item.classList.add('active');
+
+      // Toggli on su views
+      $$('.view').forEach(x => x.classList.toggle('on', x.dataset.view === v));
+
+      // Aggiorna titolo
+      const titles = {
+        dashboard: ['Dashboard','Lunedì 27 aprile · 09:14 · tutto in ordine'],
+        calls:     ['Chiamate','Ultime 24h · 217 totali · 3 live'],
+        agents:    ['Agenti AI','4 agenti · addestrati sul tuo prodotto'],
+        pipeline:  ['Pipeline','72 opportunità · €284k potenziale'],
+        settings:  ['Impostazioni','Pannello di controllo']
+      };
+
+      const t = titles[v] || ['Dashboard', ''];
+      $('#viewTitle').textContent = t[0];
+      $('#viewSub').textContent = t[1];
+    });
+  });
+
+  // WAVEFORM ANIMATION
+  document.querySelectorAll('[data-wave]').forEach(el => {
+    for (let i = 0; i < 14; i++) {
+      const s = document.createElement('span');
+      el.appendChild(s);
+    }
+  });
+
+  function animateWaveform() {
+    const t = performance.now() / 1000;
+    document.querySelectorAll('[data-wave] span').forEach((span, i) => {
+      const x = i / 14;
+      const h = (Math.abs(Math.sin(x * 13 + t * 4) * 0.6 + Math.sin(t * 6 + x * 17) * 0.3) * 14 + 3);
+      span.style.height = h + 'px';
+    });
+    requestAnimationFrame(animateWaveform);
+  }
+  animateWaveform();
+
+  // BOOT
+  console.log('✅ Dashboard Mik Cosentino loaded');
+</script>
+</body>
+</html>
