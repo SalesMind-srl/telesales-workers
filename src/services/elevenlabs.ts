@@ -18,7 +18,7 @@ export async function listCompletedBatches(env: Env, limit: number = 50) {
       throw new Error(`EL API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, any>;
     return data.batch_call_requests || [];
   } catch (error: any) {
     console.error("Error listing batches from EL:", error);
@@ -71,7 +71,7 @@ export async function getTranscript(
       throw new Error(`EL API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as Record<string, any>;
     return data.transcript || "";
   } catch (error: any) {
     console.error(`Error fetching transcript for ${conversation_id}:`, error);

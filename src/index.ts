@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Env } from "./types";
+import type { ScheduledEvent } from "@cloudflare/workers-types";
 import { healthHandler } from "./handlers/health";
 import { batchesHandler, processHandler } from "./handlers/batches";
 import { statsHandler } from "./handlers/stats";
-import { cronHandler } from "./handlers/cron";
+import { cronHandler, getCronExecutor } from "./handlers/cron";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -34,7 +35,8 @@ export default {
   fetch: app.fetch,
   async scheduled(event: ScheduledEvent, env: Env) {
     try {
-      const result = await cronHandler({ env } as any);
+      const executor = getCronExecutor(env);
+      const result = await executor();
       console.log("Cron executed:", result);
     } catch (error) {
       console.error("Cron error:", error);

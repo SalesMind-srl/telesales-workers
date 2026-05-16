@@ -1,3 +1,5 @@
+import type { KVNamespace } from "@cloudflare/workers-types";
+
 export interface Env {
   KV: KVNamespace;
   ELEVENLABS_API_KEY: string;
