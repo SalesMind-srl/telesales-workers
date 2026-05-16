@@ -4,3 +4,16 @@ service.log
 __pycache__/
 *.pyc
 .env
+.env.local
+.env.production
+node_modules/
+dist/
+.wrangler/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+build/
+.cache/

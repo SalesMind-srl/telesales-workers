@@ -1,0 +1,166 @@
+{
+  "_comment": "ElevenLabs Conversational AI agent config — Mik Cosentino infobusiness reactivation. Agente creato via API il 14/05/2026 (account admin@telesales.it).",
+  "agent": {
+    "agent_id": "agent_8001krjx3v8vfvktyc1z3xsqv0m8",
+    "main_branch_id": "agtbrch_9001krjx3whkeewbgyt80fqjx05v",
+    "initial_version_id": "agtvrsn_0501krjx3whme4tabbk863r7qsja",
+    "name": "Marco — Mik Cosentino Reactivation",
+    "language": "it",
+    "first_message": "",
+    "_first_message_note": "VUOTO: chiamata outbound, Marco aspetta che il lead dica 'Pronto?' prima di parlare. Stesso pattern di Marco Culligan/Mario.",
+    "system_prompt_file": "prompts/mik_cosentino_infobusiness_v1.md",
+    "prompt_version": "v8",
+    "_prompt_version_note": "v8 (14/05/2026) — riscritto nello stile letterale Marco Culligan: frasi tronche, regole inline, sezioni compatte, 'REGOLA PIU IMPORTANTE' su STEP C, 15 regole assolute numerate. Adattamenti B2C: STEP A semplificato (no segreteria/centralino), HOOK = richiamo letterale del modulo, leva emotiva su perche_importante.",
+    "llm": "gemini-2.5-flash-lite",
+    "temperature": 0.0,
+    "_llm_note": "Stesso stack Culligan/Mario in produzione, deterministico per consistenza tra chiamate.",
+    "max_response_length_seconds": 10,
+    "max_conversation_duration_seconds": 180
+  },
+  "voice": {
+    "voice_id": "YXg9qJ9QoswESjESRYXr",
+    "voice_name": "Marco (stesso TTS usato in Culligan)",
+    "language": "it-IT",
+    "gender": "male",
+    "model_id": "eleven_v3_conversational",
+    "stability": 0.3,
+    "similarity_boost": 0.8,
+    "speed": 1.2,
+    "_note": "Stesso voice_id e setting TTS di Marco Culligan (agent_5101kreejrz1e98rfzjrf3brhd50). Coerenza brand."
+  },
+  "dynamic_variables": {
+    "_comment": "Mappa al FORM REALE di infobusiness.com/contattaci (main brand di Mik Cosentino), verificato live via Chrome MCP il 14/05/2026. Le 'form_label' sono le etichette ESATTE che il lead vede compilando il modulo.",
+    "nome": {
+      "form_label": "Nome",
+      "form_field_type": "text",
+      "form_required": false,
+      "type": "string",
+      "test_value": "Marco"
+    },
+    "cognome": {
+      "form_label": "Cognome",
+      "form_field_type": "text",
+      "form_required": false,
+      "type": "string",
+      "test_value": "Rossi"
+    },
+    "email": {
+      "form_label": "Email",
+      "form_field_type": "email",
+      "form_required": true,
+      "type": "string",
+      "test_value": "marco.rossi@gmail.com"
+    },
+    "telefono": {
+      "form_label": "Telefono",
+      "form_field_type": "tel",
+      "form_required": true,
+      "type": "string",
+      "test_value": "+393331234567"
+    },
+    "data_iscrizione": {
+      "form_label": "(metadata interno CRM, non chiesto al lead)",
+      "form_field_type": "datetime",
+      "form_required": false,
+      "type": "string",
+      "test_value": "15/03/2026 14:22"
+    },
+    "cosa_fai_per_vivere": {
+      "form_label": "Cosa fai per vivere",
+      "form_field_type": "text",
+      "form_required": true,
+      "type": "string",
+      "test_value": "Sono consulente marketing freelance per PMI"
+    },
+    "obiettivo_3_6_mesi": {
+      "form_label": "Qual è il tuo obiettivo nei prossimi 3-6 mesi?",
+      "form_field_type": "text",
+      "form_required": true,
+      "type": "string",
+      "test_value": "Arrivare a 10-20.000€/mese stabili dal mio business"
+    },
+    "perche_importante": {
+      "form_label": "Perché è importante questo traguardo per te?",
+      "form_field_type": "text",
+      "form_required": true,
+      "type": "string",
+      "test_value": "Perché voglio finalmente avere tempo per la mia famiglia"
+    },
+    "cosa_ostacola": {
+      "form_label": "Cosa pensi ti stia ostacolando dal raggiungere questo obiettivo da solo?",
+      "form_field_type": "textarea",
+      "form_required": true,
+      "type": "string",
+      "test_value": "Non ho un metodo chiaro, ho seguito tanti corsi senza concludere nulla"
+    }
+  },
+  "data_collection": {
+    "interest_level": { "type": "string", "enum": ["high", "medium", "low", "none"] },
+    "appuntamento_fissato": { "type": "boolean" },
+    "data_appuntamento": { "type": "string", "format": "iso8601" },
+    "situazione_attuale": { "type": "string", "enum": ["dipendente", "freelance", "imprenditore", "disoccupato", "studente", "altro"] },
+    "obiettivo_dichiarato": { "type": "string", "max_length": 200 },
+    "obiezione_principale": { "type": "string", "enum": ["tempo", "soldi", "scetticismo", "gia_provato", "nessuna", "altro"] },
+    "opt_out_richiesto": { "type": "boolean" },
+    "email_confermata": { "type": "boolean" },
+    "telefono_confermato": { "type": "boolean" },
+    "note_ai": { "type": "string", "max_length": 250 }
+  },
+  "webhook": {
+    "url": "TBD — endpoint Telesales backend, es. https://telesales-backend/elevenlabs/webhook/mik",
+    "trigger": "post_call",
+    "payload": ["conversation_id", "data_collection", "transcript_summary", "duration_seconds", "call_status"]
+  },
+  "telephony": {
+    "provider": "Telnyx (SIP trunk già esistente)",
+    "from_number": "+390554652406",
+    "retry_on_sip_fail": true,
+    "max_retries": 5,
+    "retry_delay_seconds": 60
+  },
+  "scheduling": {
+    "calling_hours": {
+      "monday_friday": ["09:00-13:00", "14:00-20:00"],
+      "saturday": ["09:00-13:00"],
+      "sunday": "skip",
+      "holidays": "skip"
+    },
+    "daily_target_appointments": 20,
+    "monthly_target_appointments": 400
+  },
+  "esito_mapping": {
+    "_comment": "Mapping interest_level + appuntamento_fissato → esito CRM. Da usare nel webhook backend per popolare CRM Mik / Google Sheet.",
+    "appuntamento_fissato=true": "Appuntamento Fissato",
+    "interest_level=high": "Interessato",
+    "interest_level=medium": "Interessato Tiepido",
+    "interest_level=low": "Non Interessato",
+    "interest_level=none": "Da richiamare",
+    "opt_out_richiesto=true": "Opt-out"
+  },
+  "verification_plan": {
+    "phase_1_smoke_test": {
+      "calls": 5,
+      "targets": ["team Telesales: Simone, Niccolò, Karima, Rebecca, Barbara"],
+      "check": ["tono", "lunghezza_call_90_150s", "gestione_3_obiezioni", "booking_flow", "webhook_payload"]
+    },
+    "phase_2_pilot": {
+      "lead_count": 50,
+      "consent_check": "verificare consensi GDPR su CSV Mik prima di chiamare",
+      "metrics": ["pickup_rate", "qualified_rate", "appointment_rate", "avg_duration", "opt_out_rate"],
+      "manual_review": "ascoltare 100% registrazioni"
+    },
+    "phase_3_scale": {
+      "daily_calls": 500,
+      "target_conversion": "5-10% pickup→appointment",
+      "feedback_loop": "review settimanale con setter umano team Mik"
+    }
+  },
+  "open_questions": [
+    "CSV lead: colonne esatte + consensi GDPR confermati?",
+    "Consulente/setter umano destinatario lead: nome + calendar + CRM?",
+    "Nome agent confermato 'Sofia' o altro?",
+    "Voce femminile confermata o maschile?",
+    "Brand citato: 'team Mik Cosentino' o 'Ulama' o 'InfomarketingX'?",
+    "Fasce orarie da escludere oltre a domenica/festivi?"
+  ]
+}

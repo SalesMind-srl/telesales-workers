@@ -1,0 +1,42 @@
+name = "telesales-workers"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+node_compat = true
+
+[env.production]
+name = "telesales-workers"
+routes = [
+  { pattern = "telesales.salesmind.it/*", zone_name = "salesmind.it" }
+]
+
+[[kv_namespaces]]
+binding = "KV"
+id = "telesales-kv"
+preview_id = "telesales-kv-preview"
+
+[triggers.crons]
+crons = ["*/5 * * * *"]
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_paths = ["src/**/*.ts"]
+
+[build.upload]
+format = "service-worker"
+
+[env.production.build.upload]
+format = "service-worker"
+
+[vars]
+CHECK_INTERVAL_MINUTES = "5"
+LOG_LEVEL = "info"
+
+[env.production.vars]
+CHECK_INTERVAL_MINUTES = "5"
+LOG_LEVEL = "info"
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "telesales-kv-prod"
+preview_id = "telesales-kv-preview"

@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Telesales Platform Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink-0:#04040a;--ink-1:#080810;--ink-2:#0e0f1c;--ink-3:#14162a;--ink-4:#1b1e36;
+  --line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.13);--line3:rgba(255,255,255,.2);
+  --gold-0:#fdf0c0;--gold-1:#f0d57a;--gold-2:#d4af37;--gold-3:#b8922a;--gold-4:#7a5e18;
+  --line-gold:rgba(212,175,55,.3);--glow-gold:rgba(212,175,55,.15);
+  --blue-1:#6699ff;--blue-2:#4d78e8;--blue-3:#2d4fb8;--blue-4:#1a2f70;
+  --fg:#f0ede8;--fg2:#b8b5ae;--fg3:#7a7870;--fg4:#454340;
+  --live:#22c55e;--warn:#f59e0b;--err:#ef4444;
+  --grad-gold:linear-gradient(135deg,#fdf0c0 0%,#d4af37 45%,#7a5e18 100%);
+  --grad-blue:linear-gradient(135deg,#a8c4ff,#4d78e8,#0d1a48);
+  --fd:"Fraunces",Georgia,serif;
+  --fs:"Geist",-apple-system,sans-serif;
+  --fm:"JetBrains Mono",monospace;
+  --sb:56px;--sbx:220px;--tb:52px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--fs);background:var(--ink-0);color:var(--fg);font-size:13.5px;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+/* ═══ LAYOUT ═══ */
+.layout{display:flex;height:100vh;overflow:hidden}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{
+  width:var(--sb);background:var(--ink-1);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 0 16px;flex-shrink:0;z-index:200;
+  transition:width .3s var(--ease);overflow:hidden;
+  position:relative;
+}
+.sidebar.open{width:var(--sbx);align-items:stretch}
+.sb-logo{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--grad-gold);display:grid;place-items:center;
+  font-family:var(--fd);font-size:16px;color:var(--ink-0);
+  flex-shrink:0;margin-bottom:20px;cursor:pointer;
+  transition:transform .2s;
+}
+.sidebar.open .sb-logo{margin-left:10px;align-self:flex-start}
+.sb-logo:hover{transform:scale(1.05)}
+.sb-section{font-family:var(--fm);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg4);padding:0 14px;margin:12px 0 6px;white-space:nowrap;opacity:0;transition:opacity .2s}
+.sidebar.open .sb-section{opacity:1}
+.sb-item{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  color:var(--fg3);transition:all .15s;cursor:pointer;
+  flex-shrink:0;white-space:nowrap;overflow:hidden;
+  position:relative;
+}
+.sidebar.open .sb-item{width:calc(100% - 16px);height:34px;margin:0 8px;padding:0 10px;justify-content:flex-start}
+.sb-item:hover{background:rgba(255,255,255,.06);color:var(--fg)}
+.sb-item.active{background:rgba(212,175,55,.12);color:var(--gold-1)}
+.sb-item svg{flex-shrink:0;width:16px;height:16px}
+.sb-item-label{font-size:13px;font-weight:500;display:none}
+.sidebar.open .sb-item-label{display:block}
+.sb-item-badge{
+  margin-left:auto;width:16px;height:16px;border-radius:50%;
+  background:var(--gold-2);color:var(--ink-0);
+  font-size:9px;font-weight:700;display:none;place-items:center;
+}
+.sidebar.open .sb-item-badge{display:grid}
+.sb-divider{width:32px;height:1px;background:var(--line);margin:8px 0;flex-shrink:0}
+.sidebar.open .sb-divider{width:calc(100% - 24px);margin:8px 12px}
+.sb-spacer{flex:1}
+.sb-user{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--grad-gold);display:grid;place-items:center;
+  font-family:var(--fd);font-size:15px;color:var(--ink-0);
+  cursor:pointer;flex-shrink:0;
+}
+.sidebar.open .sb-user{margin-left:10px}
+
+/* ═══ MAIN ═══ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ═══ TOPBAR ═══ */
+.topbar{
+  height:var(--tb);background:var(--ink-1);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;
+}
+.topbar-title{font-family:var(--fd);font-size:19px;font-weight:300;letter-spacing:-.015em;white-space:nowrap}
+.topbar-title em{font-style:italic;color:var(--gold-1)}
+.topbar-sep{flex:1}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;
+}
+.badge-live{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#86efac}
+.badge-gold{background:rgba(212,175,55,.1);border:1px solid var(--line-gold);color:var(--gold-1)}
+.badge-dim{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--fg3)}
+.badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* ── Role switcher ── */
+.role-switch{display:flex;gap:2px;background:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:3px}
+.role-btn{padding:4px 12px;border-radius:999px;font-size:11.5px;font-weight:500;color:var(--fg3);transition:all .15s}
+.role-btn.active{background:var(--grad-gold);color:var(--ink-0)}
+.role-btn:hover:not(.active){color:var(--fg);background:rgba(255,255,255,.05)}
+
+/* ═══ TABS ═══ */
+.tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--line);
+  padding:0 20px;background:var(--ink-1);flex-shrink:0;
+}
+.tab{
+  padding:10px 14px;font-size:12.5px;font-weight:500;color:var(--fg3);
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all .15s;display:flex;align-items:center;gap:5px;
+}
+.tab:hover{color:var(--fg)}
+.tab.active{color:var(--gold-1);border-bottom-color:var(--gold-2)}
+
+/* ═══ CONTENT ═══ */
+.content{flex:1;overflow-y:auto;padding:24px;background:var(--ink-0)}
+.pane{display:none}
+.pane.active{display:block}
+
+/* ═══ GRID HELPERS ═══ */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g-auto{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+@media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr}}
+
+/* ═══ CARDS ═══ */
+.card{
+  background:var(--ink-2);border:1px solid var(--line);
+  border-radius:14px;padding:20px;
+}
+.card.gold{border-color:var(--line-gold)}
+.card.span2{grid-column:span 2}
+.card.span3{grid-column:span 3}
+.card-label{font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--fg3);margin-bottom:10px}
+.card-title{font-family:var(--fd);font-size:16px;font-weight:300;letter-spacing:-.01em;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--fg3)}
+
+/* ═══ KPI ═══ */
+.kpi-val{
+  font-family:var(--fd);font-size:clamp(28px,4vw,44px);font-weight:300;
+  letter-spacing:-.03em;line-height:1;margin-bottom:6px;
+  background:var(--grad-gold);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.kpi-val.blue{background:var(--grad-blue)}
+.kpi-val.green{background:linear-gradient(135deg,#86efac,#22c55e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kpi-val.red{background:linear-gradient(135deg,#fca5a5,#ef4444);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kpi-val.purple{background:linear-gradient(135deg,#c4b5fd,#8b5cf6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-family:var(--fm)}
+.kpi-delta.up{color:var(--live)}
+.kpi-delta.dn{color:var(--err)}
+.kpi-label{font-size:12px;color:var(--fg2);line-height:1.4;margin-top:6px}
+
+/* ═══ CHART (CSS bar) ═══ */
+.bar-chart{display:flex;gap:8px;align-items:flex-end;height:100px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{
+  width:100%;border-radius:4px 4px 0 0;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold-4));
+  min-height:4px;transition:height .5s var(--ease);
+}
+.bar-fill.blue{background:linear-gradient(180deg,var(--blue-2),var(--blue-4))}
+.bar-fill.green{background:linear-gradient(180deg,#22c55e,#14532d)}
+.bar-fill.purple{background:linear-gradient(180deg,#8b5cf6,#4c1d95)}
+.bar-fill.teal{background:linear-gradient(180deg,#14b8a6,#134e4a)}
+.bar-label{font-family:var(--fm);font-size:9px;color:var(--fg3)}
+
+/* spark line */
+.spark{display:flex;align-items:flex-end;gap:2px;height:36px}
+.spark-b{width:4px;border-radius:2px 2px 0 0;background:var(--gold-2);opacity:.7;transition:opacity .15s}
+.spark-b:last-child{opacity:1}
+.spark-b:hover{opacity:1}
+
+/* ═══ TIMELINE / FEED ═══ */
+.feed{display:flex;flex-direction:column;gap:0}
+.feed-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--line);
+}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{
+  width:8px;height:8px;border-radius:50%;
+  flex-shrink:0;margin-top:5px;
+}
+.feed-dot.gold{background:var(--gold-2)}
+.feed-dot.green{background:var(--live)}
+.feed-dot.blue{background:var(--blue-2)}
+.feed-dot.purple{background:#8b5cf6}
+.feed-dot.red{background:var(--err)}
+.feed-dot.teal{background:#14b8a6}
+.feed-time{font-family:var(--fm);font-size:10px;color:var(--fg3);flex-shrink:0;margin-top:2px;width:38px}
+.feed-body{flex:1}
+.feed-title{font-size:13px;font-weight:500;line-height:1.3}
+.feed-sub{font-size:11.5px;color:var(--fg3);margin-top:2px}
+
+/* ═══ TABLE ═══ */
+.ts-table{width:100%;border-collapse:collapse}
+.ts-table th{
+  font-family:var(--fm);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--fg3);text-align:left;
+  padding:8px 10px;border-bottom:1px solid var(--line);
+}
+.ts-table td{
+  padding:10px 10px;border-bottom:1px solid var(--line);
+  font-size:12.5px;vertical-align:middle;
+}
+.ts-table tr:last-child td{border-bottom:none}
+.ts-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ═══ PRICE BOX ═══ */
+.price-box{
+  background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(30,47,112,.08));
+  border:1px solid var(--line-gold);border-radius:14px;padding:18px 20px;
+}
+.price-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line)}
+.price-row:last-child{border-bottom:none}
+.price-lbl{font-size:12px;color:var(--fg2)}
+.price-val{font-family:var(--fm);font-size:13px;color:var(--gold-1);font-weight:500}
+
+/* ═══ PIPELINE ═══ */
+.pipeline{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.pipe-col{min-width:160px;flex:1;background:var(--ink-3);border-radius:10px;padding:12px}
+.pipe-col-head{font-size:11px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between}
+.pipe-card{background:var(--ink-2);border:1px solid var(--line);border-radius:7px;padding:10px;margin-bottom:7px;font-size:12px}
+.pipe-card-co{font-weight:600;margin-bottom:2px}
+.pipe-card-val{font-family:var(--fm);font-size:11px;color:var(--gold-1)}
+.pipe-card-days{font-size:10.5px;color:var(--fg3);margin-top:4px}
+
+/* ═══ RESELLER ═══ */
+.reseller-box{
+  background:linear-gradient(135deg,rgba(77,120,232,.12),rgba(13,26,72,.06));
+  border:1px solid rgba(77,120,232,.25);border-radius:14px;padding:18px 20px;
+}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:3px;background:var(--grad-gold);transition:width .5s var(--ease)}
+.progress-fill.blue{background:var(--grad-blue)}
+.progress-fill.green{background:linear-gradient(90deg,#22c55e,#86efac)}
+
+/* ═══ METRIC RING ═══ */
+.ring-wrap{position:relative;width:72px;height:72px;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:16px;font-weight:300}
+
+/* ═══ PRODUCT HUB HOME ═══ */
+.hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1100px){.hub-grid{grid-template-columns:repeat(2,1fr)}}
+.hub-card{
+  background:var(--ink-2);border:1px solid var(--line);border-radius:16px;
+  padding:22px;cursor:pointer;transition:all .25s var(--ease);
+  display:flex;flex-direction:column;gap:12px;
+}
+.hub-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.hub-card.active-card{border-color:var(--line-gold);background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(212,175,55,.02))}
+.hub-card-header{display:flex;align-items:center;gap:12px}
+.hub-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:grid;place-items:center;font-size:18px;flex-shrink:0;
+}
+.hub-card-name{font-family:var(--fd);font-size:17px;font-weight:300;letter-spacing:-.01em}
+.hub-card-desc{font-size:12px;color:var(--fg2);line-height:1.5}
+.hub-card-stats{display:flex;gap:16px}
+.hub-stat{display:flex;flex-direction:column;gap:2px}
+.hub-stat-val{font-family:var(--fd);font-size:18px;font-weight:300;color:var(--gold-1)}
+.hub-stat-lbl{font-size:10.5px;color:var(--fg3)}
+.hub-card-price{font-family:var(--fm);font-size:10px;color:var(--fg3);border-top:1px solid var(--line);padding-top:10px}
+
+/* ═══ SANDBOX TERMINAL ═══ */
+.terminal{
+  background:#050810;border:1px solid rgba(99,255,150,.15);
+  border-radius:10px;font-family:var(--fm);font-size:12px;
+  padding:16px;color:#86efac;line-height:1.7;
+  max-height:200px;overflow-y:auto;
+}
+.terminal .cmd{color:var(--gold-1)}
+.terminal .comment{color:var(--fg4);font-style:italic}
+.terminal .err{color:var(--err)}
+
+/* ═══ TOGGLE ═══ */
+.toggle{
+  width:36px;height:20px;border-radius:10px;background:var(--ink-4);
+  border:1px solid var(--line2);cursor:pointer;position:relative;
+  transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--gold-2);border-color:var(--gold-2)}
+.toggle::after{
+  content:"";position:absolute;top:3px;left:3px;
+  width:12px;height:12px;border-radius:50%;background:#fff;
+  transition:transform .2s var(--ease);
+}
+.toggle.on::after{transform:translateX(16px)}
+
+/* ═══ SANDBOX PILL ═══ */
+.sandbox-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:999px;font-size:10.5px;font-family:var(--fm);
+  background:rgba(99,255,150,.08);border:1px solid rgba(99,255,150,.2);color:#86efac;
+}
+
+/* ═══ TOOLTIPS & TAGS ═══ */
+.tag{
+  display:inline-flex;align-items:center;padding:2px 8px;
+  border-radius:999px;font-size:10.5px;font-family:var(--fm);
+  border:1px solid var(--line2);color:var(--fg3);
+}
+.tag.gold{border-color:var(--line-gold);color:var(--gold-1);background:rgba(212,175,55,.07)}
+.tag.green{border-color:rgba(34,197,94,.3);color:#86efac;background:rgba(34,197,94,.07)}
+.tag.blue{border-color:rgba(77,120,232,.3);color:var(--blue-1);background:rgba(77,120,232,.07)}
+.tag.purple{border-color:rgba(139,92,246,.3);color:#c4b5fd;background:rgba(139,92,246,.07)}
+.tag.red{border-color:rgba(239,68,68,.3);color:#fca5a5;background:rgba(239,68,68,.07)}
+
+/* ═══ SECTION HEADER ═══ */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-head h2{font-family:var(--fd);font-size:22px;font-weight:300;letter-spacing:-.02em}
+.section-head h2 em{font-style:italic;color:var(--gold-1)}
+.section-head p{font-size:12px;color:var(--fg3);margin-top:3px}
+
+/* ═══ btn ═══ */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:500;
+  transition:all .15s;
+}
+.btn-primary{background:var(--grad-gold);color:var(--ink-0)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{border:1px solid var(--line2);color:var(--fg2)}
+.btn-ghost:hover{border-color:var(--line3);color:var(--fg)}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes blink{50%{opacity:0}}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--live);display:inline-block;animation:pulse 2s infinite}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo" onclick="toggleSidebar()" title="Toggle menu">T</div>
+
+  <!-- Hub -->
+  <div class="sb-item active" id="nav-hub" onclick="go('hub')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+    <span class="sb-item-label">Platform Hub</span>
+  </div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Products</div>
+
+  <div class="sb-item" id="nav-voice" onclick="go('voice')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14s0-6 5-6 5 6 5 6"/><path d="M10.5 2.5a3.5 3.5 0 010 5"/></svg>
+    <span class="sb-item-label">VoiceStrike</span>
+    <span class="sb-item-badge">●</span>
+  </div>
+  <div class="sb-item" id="nav-care" onclick="go('care')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H3a1 1 0 00-1 1v8a1 1 0 001 1h3l2 2 2-2h3a1 1 0 001-1V3a1 1 0 00-1-1z"/></svg>
+    <span class="sb-item-label">CareFlow</span>
+  </div>
+  <div class="sb-item" id="nav-talent" onclick="go('talent')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14s0-5 5-5 5 5 5 5"/><path d="M11 1l1 1-4 4-2-2 1-1 1 1z"/></svg>
+    <span class="sb-item-label">TalentIA</span>
+  </div>
+  <div class="sb-item" id="nav-reach" onclick="go('reach')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2L2 6l5 3 3 5z"/></svg>
+    <span class="sb-item-label">ReachMax</span>
+  </div>
+  <div class="sb-item" id="nav-crm" onclick="go('crm')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="8" width="3" height="6" rx="1"/><rect x="6.5" y="5" width="3" height="9" rx="1"/><rect x="11" y="2" width="3" height="12" rx="1"/></svg>
+    <span class="sb-item-label">PipelineIQ</span>
+  </div>
+  <div class="sb-item" id="nav-lead" onclick="go('lead')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 5v3l2 2"/><path d="M2.5 2.5l2 2M11.5 2.5l-2 2"/></svg>
+    <span class="sb-item-label">LeadForge</span>
+  </div>
+  <div class="sb-item" id="nav-event" onclick="go('event')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 2v2M11 2v2M2 7h12"/></svg>
+    <span class="sb-item-label">EventMind</span>
+  </div>
+  <div class="sb-item" id="nav-course" onclick="go('course')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="9" rx="1.5"/><path d="M5 14h6M8 11v3"/></svg>
+    <span class="sb-item-label">CourseCraft</span>
+  </div>
+  <div class="sb-item" id="nav-fund" onclick="go('fund')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3.5L13 6l-2.5 2.5.5 3.5L8 10.5 5 12l.5-3.5L3 6l3.5-.5z"/></svg>
+    <span class="sb-item-label">FundMatch</span>
+  </div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Platform</div>
+  <div class="sb-item" id="nav-sandbox" onclick="go('sandbox')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5.5 6.5l2 2-2 2M9 10.5h1.5"/></svg>
+    <span class="sb-item-label">Sandbox</span>
+  </div>
+  <div class="sb-item" id="nav-pricing" onclick="go('pricing')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h7M3 12h4"/><circle cx="12" cy="11" r="3"/><path d="M12 9.5v1.5l1 1"/></svg>
+    <span class="sb-item-label">Pricing</span>
+  </div>
+
+  <div class="sb-spacer"></div>
+  <div class="sb-user" title="Account">N</div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Platform <em>Hub</em></div>
+    <span class="badge badge-live"><span class="dot"></span> Live · Apr 30 2026</span>
+    <div class="topbar-sep"></div>
+    <div class="role-switch">
+      <button class="role-btn active" onclick="setRole('client',this)">Client</button>
+      <button class="role-btn" onclick="setRole('internal',this)">Internal</button>
+      <button class="role-btn" onclick="setRole('reseller',this)">Reseller</button>
+    </div>
+    <div class="sb-user" style="width:30px;height:30px;font-size:13px">N</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ══════ HUB ══════ -->
+    <div class="pane active" id="pane-hub">
+      <div class="section-head">
+        <div>
+          <h2>Telesales <em>Platform</em></h2>
+          <p>9 AI products · 3 roles · 1 unified dashboard</p>
+        </div>
+        <span class="badge badge-gold">v2.0 · April 2026</span>
+      </div>
+
+      <!-- Summary KPIs -->
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold">
+          <div class="card-label">Platform Calls · This Week</div>
+          <div class="kpi-val">1,033</div>
+          <div class="kpi-delta up">↑ +18% vs last week</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Qualified Leads</div>
+          <div class="kpi-val green">72</div>
+          <div class="kpi-delta up">↑ 6.97% conversion</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Hours Saved</div>
+          <div class="kpi-val blue">340h</div>
+          <div class="kpi-delta up">≈ 2 FTE / week</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Active Products</div>
+          <div class="kpi-val purple">9</div>
+          <div class="kpi-delta" style="color:var(--fg3)">All systems live</div>
+        </div>
+      </div>
+
+      <!-- 9 product cards -->
+      <div class="hub-grid" id="hubGrid">
+        <!-- built by JS -->
+      </div>
+    </div>
+
+    <!-- ══════ VOICE STRIKE ══════ -->
+    <div class="pane" id="pane-voice">
+      <div class="section-head">
+        <div>
+          <h2>Voice<em>Strike</em></h2>
+          <p>AI Voice Outreach · Cold calling, qualification & appointment setting</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="badge badge-live"><span class="dot"></span> Live</span>
+          <span class="sandbox-tag">🎙 Marco v2.0</span>
+        </div>
+      </div>
+
+      <!-- tabs -->
+      <div class="tabs" style="margin:-24px -24px 24px;padding:0 24px">
+        <div class="tab active" onclick="switchTab(this,'voice-overview')">Overview</div>
+        <div class="tab" onclick="switchTab(this,'voice-calls')">Calls</div>
+        <div class="tab" onclick="switchTab(this,'voice-scripts')">Scripts</div>
+        <div class="tab" onclick="switchTab(this,'voice-pricing')">Pricing</div>
+      </div>
+
+      <div id="voice-overview">
+        <div class="grid g4" style="margin-bottom:20px">
+          <div class="card gold">
+            <div class="card-label">Calls Today</div>
+            <div class="kpi-val">247</div>
+            <div class="kpi-delta up">↑ +32 vs yesterday</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Demos Booked</div>
+            <div class="kpi-val green">18</div>
+            <div class="kpi-delta up">7.3% conversion</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Avg Call Duration</div>
+            <div class="kpi-val blue">2:14</div>
+            <div class="kpi-delta" style="color:var(--fg3)">min:sec</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Voice Latency</div>
+            <div class="kpi-val purple">780ms</div>
+            <div class="kpi-delta up">↓ best ever</div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-label">Weekly Calls Volume</div>
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar-fill" style="height:55px"></div><div class="bar-label">Mon</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:72px"></div><div class="bar-label">Tue</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:88px"></div><div class="bar-label">Wed</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:65px"></div><div class="bar-label">Thu</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:92px"></div><div class="bar-label">Fri</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:44px"></div><div class="bar-label">Sat</div></div>
+              <div class="bar-col"><div class="bar-fill" style="height:20px"></div><div class="bar-label">Sun</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">Live Call Feed</div>
+            <div class="feed">
+              <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-time">09:14</div><div class="feed-body"><div class="feed-title">Tessitura Lascialfari — in call</div><div class="feed-sub">Marco · qualifica prodotto · 1:32 elapsed</div></div></div>
+              <div class="feed-item"><div class="feed-dot green"></div><div class="feed-time">09:11</div><div class="feed-body"><div class="feed-title">GreenBuild Srl → Demo booked ✓</div><div class="feed-sub">Apr 4 14:00 · Niccolò confirmed</div></div></div>
+              <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-time">09:08</div><div class="feed-body"><div class="feed-title">Ferramenta Russo — voicemail</div><div class="feed-sub">Scheduled callback 11:00</div></div></div>
+              <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-time">09:04</div><div class="feed-body"><div class="feed-title">Logistica Napoli → qualified</div><div class="feed-sub">CRM updated · follow-up in 2d</div></div></div>
+              <div class="feed-item"><div class="feed-dot red"></div><div class="feed-time">08:58</div><div class="feed-body"><div class="feed-title">Omega Finance — DNC request</div><div class="feed-sub">Auto-removed from list · GDPR logged</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sentiment -->
+        <div class="card">
+          <div class="card-label">Call Sentiment Distribution · Today</div>
+          <div style="display:flex;gap:24px;align-items:center;margin-top:8px">
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Positive</span><span style="color:var(--live)">58%</span></div>
+              <div class="progress-bar"><div class="progress-fill green" style="width:58%"></div></div>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Neutral</span><span style="color:var(--gold-1)">29%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:29%"></div></div>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Negative</span><span style="color:var(--err)">13%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:13%;background:linear-gradient(90deg,var(--err),#7f1d1d)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="voice-calls" style="display:none">
+        <div class="card">
+          <table class="ts-table">
+            <thead><tr><th>Company</th><th>Contact</th><th>Duration</th><th>Outcome</th><th>Sentiment</th><th>Time</th></tr></thead>
+            <tbody>
+              <tr><td>Tessitura Lascialfari</td><td>Marco Bianchi</td><td>2:14</td><td><span class="tag green">Qualified</span></td><td><span class="tag green">Positive</span></td><td style="font-family:var(--fm);font-size:11px;color:var(--fg3)">09:14</td></tr>
+              <tr><td>GreenBuild Srl</td><td>Sofia Greco</td><td>3:47</td><td><span class="tag gold">Demo booked</span></td><td><span class="tag green">Very positive</span></td><td style="font-family:var(--fm);font-size:11px;color:var(--fg3)">09:11</td></tr>
+              <tr><td>Ferramenta Russo</td><td>—</td><td>0:12</td><td><span class="tag">Voicemail</span></td><td><span class="tag">N/A</span></td><td style="font-family:var(--fm);font-size:11px;color:var(--fg3)">09:08</td></tr>
+              <tr><td>Logistica Napoli</td><td>Antonio Carra</td><td>1:58</td><td><span class="tag green">Qualified</span></td><td><span class="tag green">Positive</span></td><td style="font-family:var(--fm);font-size:11px;color:var(--fg3)">09:04</td></tr>
+              <tr><td>Omega Finance</td><td>Luisa Mele</td><td>0:33</td><td><span class="tag red">DNC</span></td><td><span class="tag red">Negative</span></td><td style="font-family:var(--fm);font-size:11px;color:var(--fg3)">08:58</td></tr>
+              <tr><td>Nord Est Impianti</td><td>Davide Serra</td><td>4:02</td><td><span class="tag gold">Demo booked</span></td><td><span class="tag green">Positive</span></td><td style="font-family:var(--fm);font-size:11px;color:var(--fg3)">08:50</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="voice-scripts" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-label">Active Scripts</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">B2B Outbound · Produzione Manifatturiera</div><div class="feed-sub">Used 847 times · 8.1% conversion · Last updated 2d ago</div></div><span class="tag gold" style="margin-left:auto">Active</span></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">Follow-up · Demo No-show Recovery</div><div class="feed-sub">Used 143 times · 22% reschedule rate</div></div><span class="tag green" style="margin-left:auto">Active</span></div>
+            <div class="feed-item"><div class="feed-dot purple"></div><div class="feed-body"><div class="feed-title">Upsell · Existing Clients</div><div class="feed-sub">Used 56 times · 31% acceptance · Draft</div></div><span class="tag" style="margin-left:auto">Draft</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="voice-pricing" style="display:none">
+        <div class="grid g2">
+          <div class="price-box">
+            <div class="card-label" style="margin-bottom:14px">VoiceStrike · Pricing</div>
+            <div class="price-row"><span class="price-lbl">Setup (one-time)</span><span class="price-val">€ 9,600</span></div>
+            <div class="price-row"><span class="price-lbl">Monthly fee</span><span class="price-val">€ 1,920 / mo</span></div>
+            <div class="price-row"><span class="price-lbl">Success fee</span><span class="price-val">€ 38 / demo</span></div>
+            <div class="price-row"><span class="price-lbl">Calls included</span><span class="price-val">3,000 / mo</span></div>
+            <div class="price-row" style="border:none"><span class="price-lbl">Year 1 estimate</span><span class="price-val" style="color:var(--gold-0)">≈ € 32,640</span></div>
+          </div>
+          <div class="card">
+            <div class="card-label">Includes</div>
+            <div class="feed">
+              <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">1 dedicated AI Voice agent</div></div></div>
+              <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">CRM integration (standard)</div></div></div>
+              <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Call recording + transcript</div></div></div>
+              <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Real-time dashboard + sentiment</div></div></div>
+              <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">GDPR · 99.5% SLA · Email support</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ CARE FLOW ══════ -->
+    <div class="pane" id="pane-care">
+      <div class="section-head">
+        <div><h2>Care<em>Flow</em></h2><p>AI Customer Care · Voice + Chat + Email 24/7</p></div>
+        <span class="badge badge-live"><span class="dot"></span> 24/7 Active</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Open Tickets</div><div class="kpi-val">34</div><div class="kpi-delta up">↓ -12 vs yesterday</div></div>
+        <div class="card"><div class="card-label">Avg Resolution</div><div class="kpi-val green">4.2min</div><div class="kpi-delta up">↓ 18% faster</div></div>
+        <div class="card"><div class="card-label">CSAT Score</div><div class="kpi-val blue">94%</div><div class="kpi-delta up">↑ +3pts</div></div>
+        <div class="card"><div class="card-label">AI Handled</div><div class="kpi-val purple">88%</div><div class="kpi-delta" style="color:var(--fg3)">12% escalated</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Ticket Volume · Weekly</div>
+          <div class="bar-chart">
+            <div class="bar-col"><div class="bar-fill green" style="height:60px"></div><div class="bar-label">Mon</div></div>
+            <div class="bar-col"><div class="bar-fill green" style="height:78px"></div><div class="bar-label">Tue</div></div>
+            <div class="bar-col"><div class="bar-fill green" style="height:54px"></div><div class="bar-label">Wed</div></div>
+            <div class="bar-col"><div class="bar-fill green" style="height:90px"></div><div class="bar-label">Thu</div></div>
+            <div class="bar-col"><div class="bar-fill green" style="height:72px"></div><div class="bar-label">Fri</div></div>
+            <div class="bar-col"><div class="bar-fill green" style="height:30px"></div><div class="bar-label">Sat</div></div>
+            <div class="bar-col"><div class="bar-fill green" style="height:18px"></div><div class="bar-label">Sun</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Recent Tickets</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-time">09:18</div><div class="feed-body"><div class="feed-title">Fattura non ricevuta — Bianchi SRL</div><div class="feed-sub">Resolved in 1:42 · AI self-serve</div></div></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-time">09:12</div><div class="feed-body"><div class="feed-title">Richiesta reset password — Logix</div><div class="feed-sub">In progress · Chat channel</div></div></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-time">09:05</div><div class="feed-body"><div class="feed-title">Disdetta abbonamento — ProEdil</div><div class="feed-sub">Escalated to human · Retention flow active</div></div></div>
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-time">08:50</div><div class="feed-body"><div class="feed-title">Info spedizione — MKT Distribuzione</div><div class="feed-sub">Resolved · API tracking auto-replied</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div class="card-label" style="margin-bottom:12px">CareFlow · Pricing</div>
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div class="price-row" style="flex-direction:column;border:none;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 7,680</span></div>
+          <div class="price-row" style="flex-direction:column;border:none;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 1,440 / mo</span></div>
+          <div class="price-row" style="flex-direction:column;border:none;gap:2px"><span class="price-lbl">Variable</span><span class="price-val">€ 0.96 / ticket</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ TALENT IA ══════ -->
+    <div class="pane" id="pane-talent">
+      <div class="section-head">
+        <div><h2>Talent<em>IA</em></h2><p>AI HR Recruitment · Sourcing + Voice Screening + Shortlist</p></div>
+        <span class="badge badge-gold">AI Screener v1.4</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Candidates Screened</div><div class="kpi-val">148</div><div class="kpi-delta up">This month</div></div>
+        <div class="card"><div class="card-label">Shortlisted</div><div class="kpi-val green">22</div><div class="kpi-delta up">14.8% rate</div></div>
+        <div class="card"><div class="card-label">Time to Shortlist</div><div class="kpi-val blue">6.2h</div><div class="kpi-delta up">↓ vs 5 days human</div></div>
+        <div class="card"><div class="card-label">Offers Extended</div><div class="kpi-val purple">7</div><div class="kpi-delta up">31% acceptance</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Screening Pipeline</div>
+          <div class="pipeline">
+            <div class="pipe-col">
+              <div class="pipe-col-head"><span style="color:var(--fg2)">Applied</span><span class="tag" style="font-size:10px">148</span></div>
+              <div class="pipe-card"><div class="pipe-card-co">Dev Fullstack</div><div class="pipe-card-val">38 candidates</div><div class="pipe-card-days">Since 28 Apr</div></div>
+              <div class="pipe-card"><div class="pipe-card-co">Sales Manager</div><div class="pipe-card-val">62 candidates</div><div class="pipe-card-days">Since 25 Apr</div></div>
+            </div>
+            <div class="pipe-col">
+              <div class="pipe-col-head"><span style="color:var(--gold-1)">AI Screen</span><span class="tag gold" style="font-size:10px">64</span></div>
+              <div class="pipe-card"><div class="pipe-card-co">Dev Fullstack</div><div class="pipe-card-val">22 in queue</div><div class="pipe-card-days">~2h remaining</div></div>
+            </div>
+            <div class="pipe-col">
+              <div class="pipe-col-head"><span style="color:var(--live)">Shortlist</span><span class="tag green" style="font-size:10px">22</span></div>
+              <div class="pipe-card"><div class="pipe-card-co">Dev Fullstack</div><div class="pipe-card-val">8 profiles</div><div class="pipe-card-days">Ready to review</div></div>
+              <div class="pipe-card"><div class="pipe-card-co">Sales Manager</div><div class="pipe-card-val">14 profiles</div><div class="pipe-card-days">Ready to review</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Top Candidates · AI Score</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Giulia Marini <span class="tag green" style="margin-left:6px">96 pts</span></div><div class="feed-sub">Dev Fullstack · 5yr exp · Remote</div></div></div>
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Lorenzo Esposito <span class="tag green" style="margin-left:6px">91 pts</span></div><div class="feed-sub">Sales Manager · 8yr · Milano</div></div></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">Valentina Riva <span class="tag gold" style="margin-left:6px">84 pts</span></div><div class="feed-sub">Dev Fullstack · 3yr · Torino</div></div></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">Marco Ferrara <span class="tag gold" style="margin-left:6px">80 pts</span></div><div class="feed-sub">Sales Manager · 6yr · Roma</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div class="card-label" style="margin-bottom:12px">TalentIA · Pricing</div>
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 5,440</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 760 / mo</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Variable</span><span class="price-val">€ 6.40 / candidate</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ REACH MAX ══════ -->
+    <div class="pane" id="pane-reach">
+      <div class="section-head">
+        <div><h2>Reach<em>Max</em></h2><p>Omnichannel AI Outreach · Email + LinkedIn · Personalised sequences</p></div>
+        <span class="badge badge-live"><span class="dot"></span> Running</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Messages Sent · Today</div><div class="kpi-val">1,840</div><div class="kpi-delta up">↑ +240</div></div>
+        <div class="card"><div class="card-label">Open Rate</div><div class="kpi-val green">47%</div><div class="kpi-delta up">↑ vs 22% industry</div></div>
+        <div class="card"><div class="card-label">Replies</div><div class="kpi-val blue">312</div><div class="kpi-delta up">17% reply rate</div></div>
+        <div class="card"><div class="card-label">Booked Calls</div><div class="kpi-val purple">28</div><div class="kpi-delta up">From sequences</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Active Sequences</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">Cold Email · Manifattura Nord</div><div class="feed-sub">Step 2/4 · 340 contacts · 51% open</div></div><span class="tag gold" style="margin-left:auto">Email</span></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">LinkedIn Connect · SaaS CTO</div><div class="feed-sub">Step 1/3 · 180 contacts · 34% accept</div></div><span class="tag blue" style="margin-left:auto">LinkedIn</span></div>
+            <div class="feed-item"><div class="feed-dot purple"></div><div class="feed-body"><div class="feed-title">Re-engagement · Cold Leads Q1</div><div class="feed-sub">Step 3/3 · 96 contacts · 28% reply</div></div><span class="tag" style="margin-left:auto">Mixed</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Channel Performance</div>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Email Open Rate</span><span style="color:var(--gold-1)">47%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:47%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>LinkedIn Reply Rate</span><span style="color:var(--blue-1)">22%</span></div>
+              <div class="progress-bar"><div class="progress-fill blue" style="width:22%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Sequence Completion</span><span style="color:var(--live)">68%</span></div>
+              <div class="progress-bar"><div class="progress-fill green" style="width:68%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 2,560</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Per seat / mo</span><span class="price-val">€ 384 / seat</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Variable</span><span class="price-val">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PIPELINE IQ ══════ -->
+    <div class="pane" id="pane-crm">
+      <div class="section-head">
+        <div><h2>Pipeline<em>IQ</em></h2><p>CRM War Room · Pipeline scoring + auto follow-up</p></div>
+        <span class="badge badge-gold">AI Scoring v3</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Pipeline Value</div><div class="kpi-val">€ 2.4M</div><div class="kpi-delta up">↑ +18% MoM</div></div>
+        <div class="card"><div class="card-label">Deals · Stage 3+</div><div class="kpi-val green">37</div><div class="kpi-delta up">Close prob. &gt;60%</div></div>
+        <div class="card"><div class="card-label">Avg Deal Size</div><div class="kpi-val blue">€ 64k</div><div class="kpi-delta up">↑ +8k vs Q4</div></div>
+        <div class="card"><div class="card-label">Win Rate</div><div class="kpi-val purple">28%</div><div class="kpi-delta up">↑ +6pts w/ AI</div></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-label">Kanban Pipeline</div>
+        <div class="pipeline" style="margin-top:12px">
+          <div class="pipe-col"><div class="pipe-col-head"><span style="color:var(--fg3)">Lead</span><span class="tag">12</span></div><div class="pipe-card"><div class="pipe-card-co">Alpha Manufacturing</div><div class="pipe-card-val">€ 48,000</div><div class="pipe-card-days">Score 72 · Cold 4d</div></div><div class="pipe-card"><div class="pipe-card-co">BetaSolar Srl</div><div class="pipe-card-val">€ 24,000</div><div class="pipe-card-days">Score 58 · New</div></div></div>
+          <div class="pipe-col"><div class="pipe-col-head"><span style="color:var(--blue-1)">Qualified</span><span class="tag blue">9</span></div><div class="pipe-card"><div class="pipe-card-co">Gamma Logistics</div><div class="pipe-card-val">€ 96,000</div><div class="pipe-card-days">Score 84 · Demo 2d</div></div></div>
+          <div class="pipe-col"><div class="pipe-col-head"><span style="color:var(--gold-1)">Proposal</span><span class="tag gold">6</span></div><div class="pipe-card"><div class="pipe-card-co">Delta Finance</div><div class="pipe-card-val">€ 180,000</div><div class="pipe-card-days">Score 91 · Negotiating</div></div></div>
+          <div class="pipe-col"><div class="pipe-col-head"><span style="color:var(--live)">Closed Won</span><span class="tag green">4</span></div><div class="pipe-card"><div class="pipe-card-co">Epsilon Tech</div><div class="pipe-card-val">€ 120,000</div><div class="pipe-card-days">Signed 29 Apr ✓</div></div></div>
+        </div>
+      </div>
+      <div class="price-box">
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 3,840</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 960 / mo</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Variable</span><span class="price-val">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ LEAD FORGE ══════ -->
+    <div class="pane" id="pane-lead">
+      <div class="section-head">
+        <div><h2>Lead<em>Forge</em></h2><p>AI Lead Generation · 194 countries · 47 sources · 127k records/day</p></div>
+        <span class="badge badge-live"><span class="dot"></span> Scraping</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Leads Scraped · Today</div><div class="kpi-val">12,840</div><div class="kpi-delta up">↑ From 47 sources</div></div>
+        <div class="card"><div class="card-label">Verified Contacts</div><div class="kpi-val green">9,102</div><div class="kpi-delta up">70.8% valid</div></div>
+        <div class="card"><div class="card-label">Enriched</div><div class="kpi-val blue">6,440</div><div class="kpi-delta up">LinkedIn + Email</div></div>
+        <div class="card"><div class="card-label">Cost / Lead</div><div class="kpi-val purple">€ 0.14</div><div class="kpi-delta up">Above 10k volume</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Top Sources · Today</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">LinkedIn Sales Navigator</div><div class="feed-sub">3,241 contacts · 94% enriched</div></div></div>
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">CCIAA · Registro Imprese</div><div class="feed-sub">2,108 records · Italy filtered</div></div></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">Apollo.io Mirror</div><div class="feed-sub">1,890 contacts · Global</div></div></div>
+            <div class="feed-item"><div class="feed-dot purple"></div><div class="feed-body"><div class="feed-title">Web Scraper · 44 domains</div><div class="feed-sub">4,741 emails extracted</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Lead Score Distribution</div>
+          <div class="bar-chart">
+            <div class="bar-col"><div class="bar-fill" style="height:30px;background:linear-gradient(180deg,#ef4444,#7f1d1d)"></div><div class="bar-label">D</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:48px;background:linear-gradient(180deg,#f59e0b,#78350f)"></div><div class="bar-label">C</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:75px;background:linear-gradient(180deg,var(--gold-2),var(--gold-4))"></div><div class="bar-label">B</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:92px;background:linear-gradient(180deg,var(--live),#14532d)"></div><div class="bar-label">A</div></div>
+            <div class="bar-col"><div class="bar-fill" style="height:55px;background:linear-gradient(180deg,var(--blue-2),var(--blue-4))"></div><div class="bar-label">A+</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--fg3);margin-top:8px">Score breakdown today · 12,840 leads</div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 3,520</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 512 / mo</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Variable</span><span class="price-val">€ 0.14 / lead &gt;10k</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ EVENT MIND ══════ -->
+    <div class="pane" id="pane-event">
+      <div class="section-head">
+        <div><h2>Event<em>Mind</em></h2><p>AI Event Agent · Ticketing + AI Networking + Sponsor Matching</p></div>
+        <span class="badge badge-gold">2 events live</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Tickets Sold · Active</div><div class="kpi-val">840</div><div class="kpi-delta up">2 events</div></div>
+        <div class="card"><div class="card-label">Networking Matches</div><div class="kpi-val green">234</div><div class="kpi-delta up">AI-curated pairs</div></div>
+        <div class="card"><div class="card-label">Sponsor Deals</div><div class="kpi-val blue">8</div><div class="kpi-delta up">€ 44k value</div></div>
+        <div class="card"><div class="card-label">NPS Score</div><div class="kpi-val purple">72</div><div class="kpi-delta up">↑ Excellent</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Upcoming Events</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">AI for Business Summit · Milano</div><div class="feed-sub">May 14 · 420 tickets · 83% sold</div></div></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">SalesTech Expo · Roma</div><div class="feed-sub">Jun 3 · 600 tickets · 70% sold</div></div></div>
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">HR Innovation Day · Torino</div><div class="feed-sub">Jun 18 · 250 cap · Planning</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">AI Networking · Last Match Round</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Marco Bianchi ↔ Sofia Chen</div><div class="feed-sub">94% match · SaaS × Investor</div></div></div>
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Luca Ferrari ↔ Anna Ricci</div><div class="feed-sub">88% match · HR × Startup</div></div></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">Davide Russo ↔ Elena Park</div><div class="feed-sub">81% match · Enterprise × Vendor</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 2,880</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 632 / mo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ COURSE CRAFT ══════ -->
+    <div class="pane" id="pane-course">
+      <div class="section-head">
+        <div><h2>Course<em>Craft</em></h2><p>AI Product Builder · Courses · Playbooks · Auto-checkout · Delivery</p></div>
+        <span class="badge badge-gold">Builder v2</span>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Products Published</div><div class="kpi-val">14</div><div class="kpi-delta up">↑ +3 this month</div></div>
+        <div class="card"><div class="card-label">Revenue · MRR</div><div class="kpi-val green">€ 8,400</div><div class="kpi-delta up">↑ +22% MoM</div></div>
+        <div class="card"><div class="card-label">Enrolled Students</div><div class="kpi-val blue">312</div><div class="kpi-delta up">Across all courses</div></div>
+        <div class="card"><div class="card-label">Completion Rate</div><div class="kpi-val purple">74%</div><div class="kpi-delta up">↑ Industry avg 12%</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Top Products</div>
+          <table class="ts-table">
+            <thead><tr><th>Product</th><th>Enrolled</th><th>Revenue</th></tr></thead>
+            <tbody>
+              <tr><td>AI Sales Playbook</td><td>142</td><td style="color:var(--gold-1);font-family:var(--fm)">€ 3,840</td></tr>
+              <tr><td>Cold Call Mastery</td><td>88</td><td style="color:var(--gold-1);font-family:var(--fm)">€ 2,200</td></tr>
+              <tr><td>CRM War Room Guide</td><td>52</td><td style="color:var(--gold-1);font-family:var(--fm)">€ 1,560</td></tr>
+              <tr><td>AI for HR Teams</td><td>30</td><td style="color:var(--gold-1);font-family:var(--fm)">€ 800</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-label">AI Build Queue</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">Prompt Engineering for Sales</div><div class="feed-sub">AI building · 67% complete · ETA 2h</div></div></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">LinkedIn Outreach Playbook</div><div class="feed-sub">In review · Ready to publish</div></div></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">Event Sponsorship Guide</div><div class="feed-sub">Draft · Needs outline approval</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div style="display:flex;gap:40px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 2,560</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 512 / mo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ FUND MATCH ══════ -->
+    <div class="pane" id="pane-fund">
+      <div class="section-head">
+        <div><h2>Fund<em>Match</em></h2><p>Investor & Grant AI · 1,284 funds · Warm intro · PA Bandi match</p></div>
+        <div style="display:flex;gap:8px"><span class="badge badge-gold">Investors</span><span class="badge badge-dim">PA Grants</span></div>
+      </div>
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="card gold"><div class="card-label">Funds Matched</div><div class="kpi-val">48</div><div class="kpi-delta up">From 1,284 database</div></div>
+        <div class="card"><div class="card-label">Warm Intros Sent</div><div class="kpi-val green">12</div><div class="kpi-delta up">This quarter</div></div>
+        <div class="card"><div class="card-label">Grants Identified</div><div class="kpi-val blue">7</div><div class="kpi-delta up">PA + EU eligible</div></div>
+        <div class="card"><div class="card-label">Potential Value</div><div class="kpi-val purple">€ 1.2M</div><div class="kpi-delta up">Grant + round</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-label">Top Investor Matches</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">Primo Ventures — Milan</div><div class="feed-sub">96% match · SaaS AI · €500k–€2M tickets</div></div></div>
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">CDP Venture Capital</div><div class="feed-sub">89% match · Public · Deep Tech focus</div></div></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">Indaco Ventures</div><div class="feed-sub">82% match · B2B SaaS · Pre-Series A</div></div></div>
+            <div class="feed-item"><div class="feed-dot purple"></div><div class="feed-body"><div class="feed-title">United Ventures</div><div class="feed-sub">78% match · Digital · Growth stage</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Active Grant Applications</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">PNRR Digitalizzazione PMI</div><div class="feed-sub">Application 80% · Value: € 250k · Deadline May 31</div></div></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">Horizon Europe · AI for SME</div><div class="feed-sub">Matching phase · EU · € 800k potential</div></div></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">Industria 5.0 · MiSE</div><div class="feed-sub">Eligible confirmed · Submission Jun 15</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="price-box" style="margin-top:16px">
+        <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Setup</span><span class="price-val">€ 0</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Monthly</span><span class="price-val">€ 0</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span class="price-lbl">Success fee</span><span class="price-val">4–7% on round/grant</span></div>
+          <span class="tag green" style="margin-left:auto">Zero risk · pure success</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ SANDBOX ══════ -->
+    <div class="pane" id="pane-sandbox">
+      <div class="section-head">
+        <div><h2>Developer <em>Sandbox</em></h2><p>Test APIs, run scripts, simulate flows without touching production</p></div>
+        <span class="sandbox-tag">🧪 Sandbox · Safe</span>
+      </div>
+      <div class="grid g2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-label" style="margin-bottom:12px">API Endpoints</div>
+          <div class="feed">
+            <div class="feed-item"><div class="feed-dot green"></div><div class="feed-body"><div class="feed-title">POST /v2/voice/call</div><div class="feed-sub">Trigger a VoiceStrike call · Sandbox mode</div></div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:auto">Test</button></div>
+            <div class="feed-item"><div class="feed-dot blue"></div><div class="feed-body"><div class="feed-title">GET /v2/leads/search</div><div class="feed-sub">LeadForge · Returns 10 sample leads</div></div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:auto">Test</button></div>
+            <div class="feed-item"><div class="feed-dot purple"></div><div class="feed-body"><div class="feed-title">POST /v2/care/ticket</div><div class="feed-sub">Open a CareFlow ticket · Test env</div></div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:auto">Test</button></div>
+            <div class="feed-item"><div class="feed-dot gold"></div><div class="feed-body"><div class="feed-title">GET /v2/crm/pipeline</div><div class="feed-sub">PipelineIQ · Read-only demo data</div></div><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:auto">Test</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label" style="margin-bottom:12px">Terminal · Last Session</div>
+          <div class="terminal">
+            <div><span style="color:var(--fg3)">$</span> <span class="cmd">ts-cli call --sandbox --number=+393331234567</span></div>
+            <div style="color:var(--live)">✓ Sandbox call initiated · Agent: Marco v2.0</div>
+            <div style="color:var(--fg3)">&gt; Connecting to test relay...</div>
+            <div style="color:var(--live)">&gt; Call started · latency 762ms</div>
+            <div style="color:var(--fg3)">&gt; [00:14] Marco: "Buongiorno, sono Marco di Telesales..."</div>
+            <div style="color:var(--fg3)">&gt; [00:28] Human: "Sì, dimmi..."</div>
+            <div style="color:var(--live)">&gt; [02:14] Outcome: QUALIFIED · Demo booked</div>
+            <div><span style="color:var(--fg3)">$</span> <span class="cmd">ts-cli lead search --query="manufattura Milano" --limit=5</span></div>
+            <div style="color:var(--live)">✓ 5 leads returned · 4 enriched</div>
+            <div style="color:var(--fg3)">&gt; Export as CSV? [y/N] _<span style="animation:blink 1s steps(2) infinite;display:inline-block">|</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label" style="margin-bottom:14px">Sandbox Settings</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:500">Safe mode — no real calls</div><div style="font-size:11.5px;color:var(--fg3)">All calls routed to test relay</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:500">Synthetic leads only</div><div style="font-size:11.5px;color:var(--fg3)">Use generated data instead of real DB</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:500">Debug logging</div><div style="font-size:11.5px;color:var(--fg3)">Verbose API response in terminal</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:500">Webhook test receiver</div><div style="font-size:11.5px;color:var(--fg3)">Listen on wss://sandbox.telesales.it/hooks</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PRICING ══════ -->
+    <div class="pane" id="pane-pricing">
+      <div class="section-head">
+        <div><h2>Platform <em>Pricing</em></h2><p>All 9 products · 3 tiers · à la carte · IVA excluded · 2026</p></div>
+        <a href="../Listino-Prezzi-2026.html" class="btn btn-ghost" style="font-size:12px">Open full PDF ↗</a>
+      </div>
+
+      <!-- Tiers -->
+      <div class="grid g3" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-label" style="margin-bottom:10px">Tier 01</div>
+          <div style="font-family:var(--fd);font-size:26px;font-weight:300;font-style:italic;letter-spacing:-.02em;margin-bottom:4px">Starter</div>
+          <div style="font-size:12px;color:var(--fg3);margin-bottom:14px">PMI up to 30 employees · 1 AI agent</div>
+          <div class="price-row"><span class="price-lbl">Setup (one-time)</span><span class="price-val">€ 9,600</span></div>
+          <div class="price-row"><span class="price-lbl">Monthly fee</span><span class="price-val">€ 1,920 / mo</span></div>
+          <div class="price-row"><span class="price-lbl">Success fee</span><span class="price-val">€ 38 / demo</span></div>
+          <div class="price-row" style="border:none"><span class="price-lbl">Year 1 estimate</span><span class="price-val">≈ € 32,640</span></div>
+        </div>
+        <div class="card gold" style="position:relative">
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--grad-gold);color:var(--ink-0);font-family:var(--fm);font-size:9px;font-weight:700;letter-spacing:.15em;padding:3px 12px;border-radius:0 0 6px 6px;text-transform:uppercase">Most popular</div>
+          <div class="card-label" style="margin-bottom:10px;margin-top:6px">Tier 02</div>
+          <div style="font-family:var(--fd);font-size:26px;font-weight:300;font-style:italic;letter-spacing:-.02em;color:var(--gold-1);margin-bottom:4px">Growth</div>
+          <div style="font-size:12px;color:var(--fg3);margin-bottom:14px">PMI 30–150 · 2 agents · Full outbound</div>
+          <div class="price-row"><span class="price-lbl">Setup (one-time)</span><span class="price-val">€ 14,400</span></div>
+          <div class="price-row"><span class="price-lbl">Monthly fee</span><span class="price-val">€ 2,880 / mo</span></div>
+          <div class="price-row"><span class="price-lbl">Success fee</span><span class="price-val">€ 29 / demo</span></div>
+          <div class="price-row" style="border:none"><span class="price-lbl">Year 1 estimate</span><span class="price-val">≈ € 51,840</span></div>
+        </div>
+        <div class="card">
+          <div class="card-label" style="margin-bottom:10px">Tier 03</div>
+          <div style="font-family:var(--fd);font-size:26px;font-weight:300;font-style:italic;letter-spacing:-.02em;margin-bottom:4px">Enterprise</div>
+          <div style="font-size:12px;color:var(--fg3);margin-bottom:14px">150+ · Unlimited calls · Custom</div>
+          <div class="price-row"><span class="price-lbl">Setup (one-time)</span><span class="price-val">from € 33,600</span></div>
+          <div class="price-row"><span class="price-lbl">Monthly fee</span><span class="price-val">from € 6,240 / mo</span></div>
+          <div class="price-row"><span class="price-lbl">Success fee</span><span class="price-val">custom</span></div>
+          <div class="price-row" style="border:none"><span class="price-lbl">Year 1 estimate</span><span class="price-val">from € 108,480</span></div>
+        </div>
+      </div>
+
+      <!-- À la carte table -->
+      <div class="card">
+        <div class="card-label" style="margin-bottom:14px">À la carte · All 9 Products</div>
+        <table class="ts-table">
+          <thead><tr><th>#</th><th>Product</th><th>Description</th><th>Setup</th><th>Monthly</th><th>Variable</th></tr></thead>
+          <tbody>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">01</td><td><strong>VoiceStrike</strong></td><td style="color:var(--fg3);font-size:12px">Cold calling · qualification · booking</td><td style="font-family:var(--fm)">€ 9,600</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 1,920</td><td style="font-family:var(--fm);font-size:12px">€ 38 / demo</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">02</td><td><strong>CareFlow</strong></td><td style="color:var(--fg3);font-size:12px">Voice + chat + email 24/7</td><td style="font-family:var(--fm)">€ 7,680</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 1,440</td><td style="font-family:var(--fm);font-size:12px">€ 0.96 / ticket</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">03</td><td><strong>TalentIA</strong></td><td style="color:var(--fg3);font-size:12px">Sourcing + voice screening + shortlist</td><td style="font-family:var(--fm)">€ 5,440</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 760</td><td style="font-family:var(--fm);font-size:12px">€ 6.40 / candidate</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">04</td><td><strong>ReachMax</strong></td><td style="color:var(--fg3);font-size:12px">Email + LinkedIn AI sequences</td><td style="font-family:var(--fm)">€ 2,560</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 384 / seat</td><td style="font-family:var(--fm);font-size:12px">—</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">05</td><td><strong>PipelineIQ</strong></td><td style="color:var(--fg3);font-size:12px">CRM · scoring · auto follow-up</td><td style="font-family:var(--fm)">€ 3,840</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 960</td><td style="font-family:var(--fm);font-size:12px">—</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">06</td><td><strong>LeadForge</strong></td><td style="color:var(--fg3);font-size:12px">194 countries · 47 sources · 127k/day</td><td style="font-family:var(--fm)">€ 3,520</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 512</td><td style="font-family:var(--fm);font-size:12px">€ 0.14 / lead &gt;10k</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">07</td><td><strong>EventMind</strong></td><td style="color:var(--fg3);font-size:12px">Ticketing + AI networking + sponsors</td><td style="font-family:var(--fm)">€ 2,880</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 632</td><td style="font-family:var(--fm);font-size:12px">—</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">08</td><td><strong>CourseCraft</strong></td><td style="color:var(--fg3);font-size:12px">Courses · playbooks · auto delivery</td><td style="font-family:var(--fm)">€ 2,560</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 512</td><td style="font-family:var(--fm);font-size:12px">—</td></tr>
+            <tr><td style="font-family:var(--fm);color:var(--fg3)">09</td><td><strong>FundMatch</strong></td><td style="color:var(--fg3);font-size:12px">1,284 funds · warm intro · PA bandi</td><td style="font-family:var(--fm)">€ 0</td><td style="font-family:var(--fm);color:var(--gold-1)">€ 0</td><td style="font-family:var(--fm);font-size:12px">4–7% on round</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Discounts -->
+      <div class="grid g4" style="margin-top:16px">
+        <div class="card"><div class="card-label">Bundle 2 Products</div><div style="font-family:var(--fd);font-size:24px;font-weight:300;color:var(--gold-1);margin:6px 0">−5%</div><div style="font-size:12px;color:var(--fg3)">On monthly fees of both modules</div></div>
+        <div class="card"><div class="card-label">Bundle 3+ Products</div><div style="font-family:var(--fd);font-size:24px;font-weight:300;color:var(--gold-1);margin:6px 0">−10%</div><div style="font-size:12px;color:var(--fg3)">On setup + monthly · Annual contract</div></div>
+        <div class="card"><div class="card-label">Annual Prepay</div><div style="font-family:var(--fd);font-size:24px;font-weight:300;color:var(--gold-1);margin:6px 0">−8%</div><div style="font-size:12px;color:var(--fg3)">12 months upfront · stackable</div></div>
+        <div class="card"><div class="card-label">Referral Bonus</div><div style="font-family:var(--fd);font-size:24px;font-weight:300;color:var(--gold-1);margin:6px 0">1 mo free</div><div style="font-size:12px;color:var(--fg3)">Per client signed within 60 days</div></div>
+      </div>
+
+      <!-- Reseller view -->
+      <div class="reseller-box" style="margin-top:16px" id="resellerSection">
+        <div class="card-label" style="color:var(--blue-1);margin-bottom:12px">Reseller Program · Margins</div>
+        <div class="grid g3" style="gap:12px">
+          <div><div style="font-family:var(--fd);font-size:22px;font-weight:300;color:var(--blue-1);margin-bottom:4px">20%</div><div style="font-size:12px;color:var(--fg3)">Setup margin reseller</div></div>
+          <div><div style="font-family:var(--fd);font-size:22px;font-weight:300;color:var(--blue-1);margin-bottom:4px">15%</div><div style="font-size:12px;color:var(--fg3)">Recurring monthly margin</div></div>
+          <div><div style="font-family:var(--fd);font-size:22px;font-weight:300;color:var(--blue-1);margin-bottom:4px">10%</div><div style="font-size:12px;color:var(--fg3)">Success fee share</div></div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--fg3)">White-label available · Dedicated reseller portal · Custom domain · Branded reports</div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+const PRODUCTS = [
+  { id:'voice',  name:'VoiceStrike',  desc:'AI Voice Outreach · Cold calling, qualification & demo booking at scale',  icon:'🎙', color:'#d4af37', kpi:'1,033 calls/wk', kpi2:'7.3% conv.', setup:'€ 9,600', monthly:'€ 1,920/mo' },
+  { id:'care',   name:'CareFlow',     desc:'AI Customer Care · Voice + Chat + Email tickets resolved 24/7',              icon:'💬', color:'#22c55e', kpi:'94% CSAT',      kpi2:'4.2min resolve', setup:'€ 7,680', monthly:'€ 1,440/mo' },
+  { id:'talent', name:'TalentIA',     desc:'AI HR Recruitment · Sourcing + voice screening + ranked shortlists',         icon:'🎯', color:'#8b5cf6', kpi:'148 screened',  kpi2:'6.2h shortlist', setup:'€ 5,440', monthly:'€ 760/mo' },
+  { id:'reach',  name:'ReachMax',     desc:'Omnichannel Outreach · AI-personalised Email & LinkedIn sequences',           icon:'📡', color:'#06b6d4', kpi:'47% open rate', kpi2:'17% reply',     setup:'€ 2,560', monthly:'€ 384/seat' },
+  { id:'crm',    name:'PipelineIQ',   desc:'CRM War Room · AI pipeline scoring + automated follow-up engine',             icon:'📊', color:'#f97316', kpi:'€ 2.4M pipeline',kpi2:'28% win rate', setup:'€ 3,840', monthly:'€ 960/mo' },
+  { id:'lead',   name:'LeadForge',    desc:'Lead Generation AI · 194 countries · 47 sources · 127k records/day',         icon:'⚡', color:'#ec4899', kpi:'12,840 today',  kpi2:'€ 0.14/lead',   setup:'€ 3,520', monthly:'€ 512/mo' },
+  { id:'event',  name:'EventMind',    desc:'AI Event Agent · Ticketing, AI networking & sponsor deal matching',           icon:'📅', color:'#14b8a6', kpi:'840 tickets',   kpi2:'NPS 72',         setup:'€ 2,880', monthly:'€ 632/mo' },
+  { id:'course', name:'CourseCraft',  desc:'AI Product Builder · Courses, playbooks, checkout & auto-delivery',           icon:'🖥', color:'#a3e635', kpi:'€ 8,400 MRR',  kpi2:'74% completion', setup:'€ 2,560', monthly:'€ 512/mo' },
+  { id:'fund',   name:'FundMatch',    desc:'Investor & Grant AI · 1,284 funds, warm intros & PA bandi automation',        icon:'⭐', color:'#60a5fa', kpi:'48 matches',    kpi2:'4–7% success',   setup:'€ 0', monthly:'€ 0' },
+];
+
+const TITLES = {
+  hub:'Platform Hub', voice:'VoiceStrike', care:'CareFlow', talent:'TalentIA',
+  reach:'ReachMax', crm:'PipelineIQ', lead:'LeadForge', event:'EventMind',
+  course:'CourseCraft', fund:'FundMatch', sandbox:'Sandbox', pricing:'Pricing'
+};
+const TITLE_EM = {
+  hub:'Hub', voice:'Strike', care:'Flow', talent:'IA',
+  reach:'Max', crm:'IQ', lead:'Forge', event:'Mind',
+  course:'Craft', fund:'Match', sandbox:'Dev', pricing:'2026'
+};
+
+let currentRole = 'client';
+
+// Build hub grid
+const hubGrid = document.getElementById('hubGrid');
+PRODUCTS.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'hub-card';
+  div.onclick = () => go(p.id);
+  div.innerHTML = `
+    <div class="hub-card-header">
+      <div class="hub-icon" style="background:${p.color}18;border:1px solid ${p.color}40;font-size:20px">${p.icon}</div>
+      <div>
+        <div class="hub-card-name">${p.name}</div>
+        <div class="card-sub" style="margin:0">${p.setup} setup</div>
+      </div>
+    </div>
+    <div class="hub-card-desc">${p.desc}</div>
+    <div class="hub-card-stats">
+      <div class="hub-stat"><span class="hub-stat-val">${p.kpi}</span><span class="hub-stat-lbl">Primary KPI</span></div>
+      <div class="hub-stat"><span class="hub-stat-val">${p.kpi2}</span><span class="hub-stat-lbl">Secondary</span></div>
+    </div>
+    <div class="hub-card-price">${p.monthly} · Click to open dashboard →</div>
+  `;
+  hubGrid.appendChild(div);
+});
+
+function go(id) {
+  // hide all panes
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  const nav = document.getElementById('nav-'+id);
+  if (nav) nav.classList.add('active');
+  // topbar title
+  const base = TITLES[id] || id;
+  const em = TITLE_EM[id] || '';
+  const stem = base.replace(em,'');
+  document.getElementById('topbar-title').innerHTML = stem + '<em>' + em + '</em>';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function setRole(role, btn) {
+  currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // show/hide reseller section
+  const rs = document.getElementById('resellerSection');
+  if (rs) rs.style.display = (role === 'reseller' || role === 'internal') ? 'block' : 'none';
+}
+
+function switchTab(el, sectionId) {
+  const tabs = el.parentElement.querySelectorAll('.tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  // find all sibling divs after tabs
+  const parent = el.closest('.pane');
+  // get section ids from tab onclick
+  // get current visible sections and hide all
+  const allSections = parent.querySelectorAll('[id^="voice-"],[id^="care-"],[id^="talent-"]');
+  allSections.forEach(s => s.style.display='none');
+  const target = document.getElementById(sectionId);
+  if (target) target.style.display='block';
+}
+
+// Init: hide reseller section by default
+window.addEventListener('DOMContentLoaded', () => {
+  const rs = document.getElementById('resellerSection');
+  if (rs) rs.style.display = 'none';
+  // Open sidebar slightly for better UX
+  // Keep collapsed by default for clean look
+});
+
+// Live timer animation on topbar badge
+let sec = 0;
+setInterval(() => {
+  sec++;
+  // subtle live indicator
+}, 1000);
+</script>
+</body>
+</html>

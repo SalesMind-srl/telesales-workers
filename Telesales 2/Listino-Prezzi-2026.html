@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Telesales — Listino Prezzi 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #05050a;
+    --ink2: #0d0e14;
+    --fg: #f0ede8;
+    --fg2: #c0bcb6;
+    --fg3: #888480;
+    --gold: #c8a84a;
+    --gold-lt: #e8c870;
+    --blue: #1e3a7a;
+    --line: rgba(255,255,255,.08);
+    --line-g: rgba(200,168,74,.22);
+    --font-d: 'Fraunces', Georgia, serif;
+    --font-s: 'Geist', system-ui, sans-serif;
+    --font-m: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 10.5pt; }
+
+  body {
+    font-family: var(--font-s);
+    background: var(--ink);
+    color: var(--fg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ===== PAGE ===== */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 16mm 16mm 14mm;
+    background: var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page + .page {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* background decoration */
+  .page::before {
+    content: "";
+    position: absolute; top: -60mm; right: -60mm;
+    width: 140mm; height: 140mm;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,168,74,.12), transparent 65%);
+    pointer-events: none;
+  }
+  .page::after {
+    content: "";
+    position: absolute; bottom: -40mm; left: -40mm;
+    width: 120mm; height: 120mm;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(30,58,122,.22), transparent 65%);
+    pointer-events: none;
+  }
+
+  /* ===== HEADER ===== */
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 8mm;
+    border-bottom: 0.4pt solid rgba(200,168,74,.35);
+    margin-bottom: 8mm;
+    position: relative; z-index: 1;
+  }
+  .doc-logo { height: 22pt; }
+  .doc-title-block { text-align: right; }
+  .doc-title {
+    font-family: var(--font-d); font-weight: 300;
+    font-size: 22pt; letter-spacing: -.02em; line-height: 1;
+    color: var(--fg);
+  }
+  .doc-title em { font-style: italic; color: var(--gold-lt); }
+  .doc-sub {
+    font-family: var(--font-m); font-size: 7.5pt; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--fg3); margin-top: 3pt;
+  }
+
+  /* ===== SECTION LABEL ===== */
+  .sec-label {
+    font-family: var(--font-m); font-size: 7pt; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 4mm;
+    display: flex; align-items: center; gap: 8pt;
+    position: relative; z-index: 1;
+  }
+  .sec-label::after { content: ""; flex: 1; height: 0.4pt; background: var(--line-g); }
+
+  /* ===== TIER GRID ===== */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.08fr 1fr;
+    gap: 3.5mm;
+    margin-bottom: 7mm;
+    position: relative; z-index: 1;
+  }
+
+  .tier-card {
+    border: 0.4pt solid var(--line);
+    border-radius: 4mm;
+    padding: 5mm 5.5mm 5mm;
+    background: rgba(255,255,255,.02);
+    position: relative;
+    overflow: hidden;
+  }
+  .tier-card.featured {
+    border-color: rgba(200,168,74,.5);
+    background: linear-gradient(180deg, rgba(200,168,74,.07) 0%, rgba(200,168,74,.02) 60%, rgba(30,58,122,.06) 100%);
+  }
+  .tier-card .feat-badge {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(90deg, #c8a84a, #e8c870);
+    color: var(--ink); font-family: var(--font-m);
+    font-size: 6pt; font-weight: 600; letter-spacing: .15em;
+    padding: 2pt 8pt; border-radius: 0 0 3pt 3pt;
+    text-transform: uppercase;
+  }
+  .tier-name {
+    font-family: var(--font-d); font-size: 16pt; font-weight: 400;
+    letter-spacing: -.015em; font-style: italic;
+    margin-top: 3mm; margin-bottom: 2mm;
+  }
+  .tier-card.featured .tier-name { color: var(--gold-lt); }
+  .tier-for {
+    font-size: 7.5pt; color: var(--fg3); line-height: 1.5;
+    margin-bottom: 3.5mm;
+  }
+
+  .tier-prices {
+    padding: 3mm 0;
+    border-top: 0.4pt solid var(--line);
+    border-bottom: 0.4pt solid var(--line);
+    margin-bottom: 3mm;
+    display: flex; flex-direction: column; gap: 2mm;
+  }
+  .price-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .price-row .lbl { font-size: 7.5pt; color: var(--fg3); }
+  .price-row .val {
+    font-family: var(--font-m); font-size: 9pt; font-weight: 500;
+    color: var(--fg);
+  }
+  .tier-card.featured .price-row .val { color: var(--gold-lt); }
+
+  .tier-includes {
+    display: flex; flex-direction: column; gap: 2mm;
+    font-size: 7.5pt; color: var(--fg2);
+  }
+  .tier-includes li { list-style: none; display: flex; gap: 5pt; }
+  .tier-includes li::before { content: "—"; color: var(--gold); flex-shrink: 0; }
+
+  .tier-total {
+    margin-top: 3.5mm; padding-top: 3mm; border-top: 0.4pt solid var(--line);
+    font-family: var(--font-m); font-size: 7.5pt; color: var(--fg3);
+    display: flex; justify-content: space-between;
+  }
+  .tier-total span { color: var(--gold-lt); font-weight: 600; font-size: 9pt; }
+
+  /* ===== ALACARTE TABLE ===== */
+  .table-wrap {
+    border: 0.4pt solid var(--line);
+    border-radius: 3mm;
+    overflow: hidden;
+    margin-bottom: 7mm;
+    position: relative; z-index: 1;
+  }
+  .table-head {
+    display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr;
+    padding: 2.5mm 4mm;
+    background: rgba(255,255,255,.03);
+    border-bottom: 0.4pt solid var(--line);
+    font-family: var(--font-m); font-size: 6.5pt; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--fg3);
+  }
+  .table-head div:not(:first-child), .table-row div:not(:first-child) { text-align: right; }
+  .table-row {
+    display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr;
+    padding: 2.5mm 4mm;
+    border-bottom: 0.4pt solid rgba(255,255,255,.04);
+    align-items: center;
+  }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:nth-child(odd) { background: rgba(255,255,255,.01); }
+  .row-product { font-size: 8.5pt; font-weight: 500; }
+  .row-sub { font-size: 6.5pt; color: var(--fg3); margin-top: 1pt; }
+  .row-val { font-family: var(--font-m); font-size: 8pt; color: var(--fg2); }
+  .row-val.gold { color: var(--gold-lt); font-weight: 600; }
+
+  /* ===== PAYMENT TERMS ===== */
+  .terms-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3mm; margin-bottom: 7mm;
+    position: relative; z-index: 1;
+  }
+  .term-card {
+    border: 0.4pt solid var(--line);
+    border-radius: 3mm; padding: 4mm 4.5mm;
+    background: rgba(255,255,255,.015);
+  }
+  .term-card.full { grid-column: 1 / -1; }
+  .term-label {
+    font-family: var(--font-m); font-size: 6.5pt; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 2mm;
+  }
+  .term-title { font-family: var(--font-d); font-size: 11pt; font-weight: 400; font-style: italic; margin-bottom: 2mm; }
+  .term-body { font-size: 7.5pt; color: var(--fg2); line-height: 1.6; }
+  .term-body b { color: var(--fg); font-weight: 500; }
+
+  /* ===== ROI CALLOUT ===== */
+  .roi-box {
+    border: 0.4pt solid rgba(200,168,74,.5);
+    border-radius: 3mm; padding: 5mm 6mm;
+    background: linear-gradient(135deg, rgba(200,168,74,.08), rgba(30,58,122,.06));
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 5mm; align-items: center;
+    margin-bottom: 7mm;
+    position: relative; z-index: 1;
+  }
+  .roi-n {
+    font-family: var(--font-d); font-weight: 300; font-style: italic;
+    font-size: 28pt; color: var(--gold-lt); line-height: 1;
+    letter-spacing: -.03em;
+  }
+  .roi-desc h4 { font-size: 9.5pt; font-weight: 500; margin-bottom: 2pt; }
+  .roi-desc p { font-size: 7.5pt; color: var(--fg3); line-height: 1.5; }
+  .roi-chip {
+    font-family: var(--font-m); font-size: 7pt; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--gold);
+    border: 0.4pt solid rgba(200,168,74,.4);
+    padding: 3pt 8pt; border-radius: 99pt;
+    white-space: nowrap;
+  }
+
+  /* ===== GUARANTEE ===== */
+  .guarantee {
+    border-left: 2pt solid var(--gold);
+    padding: 3mm 4mm; background: rgba(200,168,74,.04);
+    border-radius: 0 3mm 3mm 0; margin-bottom: 7mm;
+    font-size: 8pt; line-height: 1.6; color: var(--fg2);
+    position: relative; z-index: 1;
+  }
+  .guarantee b { color: var(--fg); font-weight: 500; }
+
+  /* ===== FOOTER ===== */
+  .doc-footer {
+    border-top: 0.4pt solid rgba(255,255,255,.08);
+    padding-top: 4mm; margin-top: auto;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-m); font-size: 6.5pt; color: var(--fg3);
+    position: relative; z-index: 1;
+  }
+  .doc-footer .page-num { color: var(--gold); }
+
+  /* ===== PRINT ===== */
+  @page {
+    size: A4; margin: 0;
+    background: #05050a;
+  }
+  @media print {
+    html, body { background: #05050a !important; }
+    .page { width: 210mm; min-height: 297mm; margin: 0; }
+  }
+
+  /* ===== SCREEN PREVIEW ===== */
+  @media screen {
+    body { padding: 10mm; min-height: 100vh; }
+    .page { box-shadow: 0 20px 80px rgba(0,0,0,.8); margin-bottom: 10mm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== PAGINA 1 ==================== -->
+<div class="page">
+
+  <header class="doc-header">
+    <div>
+      <!-- Logo placeholder - replaced with data URI when bundled -->
+      <div style="font-family:'Fraunces',Georgia,serif;font-size:20pt;font-weight:300;letter-spacing:-.02em;color:#e8c870;">
+        telesales<span style="color:#888480">.it</span>
+      </div>
+    </div>
+    <div class="doc-title-block">
+      <div class="doc-title">Listino <em>prezzi</em></div>
+      <div class="doc-sub">Edizione 2026 · IVA esclusa · validità 90 giorni</div>
+    </div>
+  </header>
+
+  <!-- ROI callout -->
+  <div class="roi-box">
+    <div class="roi-n">−72%</div>
+    <div class="roi-desc">
+      <h4>Costo per lead qualificato vs team commerciale interno</h4>
+      <p>Benchmark su 40 clienti attivi. PMI 20–200 dipendenti, settore B2B. Dati H1 2026.</p>
+    </div>
+    <div class="roi-chip">dati reali</div>
+  </div>
+
+  <!-- TIER -->
+  <div class="sec-label">Pacchetti completi — setup + canone + success fee</div>
+
+  <div class="tier-grid">
+
+    <!-- STARTER -->
+    <div class="tier-card">
+      <div class="tier-name">Starter</div>
+      <div class="tier-for">PMI fino a 30 dipendenti. Primo caso d'uso AI Voice su un singolo reparto.</div>
+      <div class="tier-prices">
+        <div class="price-row"><span class="lbl">Setup una tantum</span><span class="val">€ 9.600</span></div>
+        <div class="price-row"><span class="lbl">Canone mensile</span><span class="val">€ 1.920 / mese</span></div>
+        <div class="price-row"><span class="lbl">Success fee</span><span class="val">€ 38 / demo</span></div>
+      </div>
+      <ul class="tier-includes">
+        <li>1 agente AI Voice dedicato</li>
+        <li>3.000 chiamate/mese incluse</li>
+        <li>Integrazione CRM standard</li>
+        <li>Dashboard + transcript</li>
+        <li>SLA 99,5% · supporto email</li>
+      </ul>
+      <div class="tier-total">Anno 1 indicativo <span>≈ € 32.640</span></div>
+    </div>
+
+    <!-- GROWTH (featured) -->
+    <div class="tier-card featured">
+      <div class="feat-badge">Più scelto</div>
+      <div class="tier-name">Growth</div>
+      <div class="tier-for">PMI 30–150 dipendenti. Sostituisce un intero reparto outbound o customer care.</div>
+      <div class="tier-prices">
+        <div class="price-row"><span class="lbl">Setup una tantum</span><span class="val">€ 14.400</span></div>
+        <div class="price-row"><span class="lbl">Canone mensile</span><span class="val">€ 2.880 / mese</span></div>
+        <div class="price-row"><span class="lbl">Success fee</span><span class="val">€ 29 / demo</span></div>
+      </div>
+      <ul class="tier-includes">
+        <li>2 agenti AI (Voice + Care)</li>
+        <li>12.000 chiamate/mese incluse</li>
+        <li>CRM custom · HubSpot, Salesforce, Pipedrive</li>
+        <li>A/B test + analytics + sentiment</li>
+        <li>SLA 99,9% · Customer Success dedicato</li>
+      </ul>
+      <div class="tier-total">Anno 1 indicativo <span>≈ € 51.840</span></div>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="tier-card">
+      <div class="tier-name">Enterprise</div>
+      <div class="tier-for">150+ dipendenti · multi-sede · settori regolati · accordi custom.</div>
+      <div class="tier-prices">
+        <div class="price-row"><span class="lbl">Setup una tantum</span><span class="val">da € 33.600</span></div>
+        <div class="price-row"><span class="lbl">Canone mensile</span><span class="val">da € 6.240 / mese</span></div>
+        <div class="price-row"><span class="lbl">Success fee</span><span class="val">su misura</span></div>
+      </div>
+      <ul class="tier-includes">
+        <li>Chiamate illimitate · multi-agente</li>
+        <li>Training su dati proprietari</li>
+        <li>On-premise o cloud privato</li>
+        <li>DPA + audit trail completo</li>
+        <li>SLA 99,99% · Account Executive dedicato</li>
+      </ul>
+      <div class="tier-total">Anno 1 indicativo <span>da € 108.480</span></div>
+    </div>
+
+  </div>
+
+  <!-- TERMINI DI PAGAMENTO -->
+  <div class="sec-label">Termini di pagamento</div>
+
+  <div class="terms-grid">
+    <div class="term-card">
+      <div class="term-label">Setup una tantum</div>
+      <div class="term-title">Pagamento in due tranche</div>
+      <div class="term-body">
+        <b>50% alla firma del contratto</b> — emissione fattura entro 48h.<br>
+        <b>50% al go-live</b> (prima chiamata reale, entro 48h dalla firma).<br>
+        Bonifico bancario entro <b>15 giorni</b> dalla data fattura.
+      </div>
+    </div>
+    <div class="term-card">
+      <div class="term-label">Canone mensile</div>
+      <div class="term-title">Pagamento anticipato</div>
+      <div class="term-body">
+        Fattura emessa il <b>1° del mese</b> per il mese in corso.<br>
+        Pagamento entro il <b>10° del mese</b>.<br>
+        In caso di attivazione a metà mese: <b>prorata giornaliero</b>.
+      </div>
+    </div>
+    <div class="term-card">
+      <div class="term-label">Success fee</div>
+      <div class="term-title">Pagamento posticipato su consuntivo</div>
+      <div class="term-body">
+        Rendiconto il <b>30° del mese</b> su demo effettivamente fissate e confermate.<br>
+        Fattura entro il 5° del mese successivo.<br>
+        Pagamento entro il <b>20° del mese</b> successivo.
+      </div>
+    </div>
+    <div class="term-card">
+      <div class="term-label">Penali e condizioni</div>
+      <div class="term-title">Ritardi e disdetta</div>
+      <div class="term-body">
+        Ritardo di pagamento: <b>2% mensile</b> sull'importo scaduto (D. Lgs. 231/2002).<br>
+        Disdetta: preavviso di <b>30 giorni</b> dopo il 6° mese.<br>
+        Impegno minimo: <b>6 mesi</b> dall'attivazione.
+      </div>
+    </div>
+  </div>
+
+  <!-- GARANZIA -->
+  <div class="guarantee">
+    <b>Garanzia pilota 30 giorni:</b> se nei primi 30 giorni le performance non eguagliano il tuo team attuale (lead qualificati/mese o ticket gestiti), rimborsiamo il 100% del setup. Senza condizioni. La garanzia va richiesta per iscritto entro il 35° giorno dall'attivazione.
+  </div>
+
+  <footer class="doc-footer">
+    <span>Telesales Srl · info@telesales.it · telesales.it</span>
+    <span>Prezzi IVA esclusa · P.IVA 0123456789</span>
+    <span class="page-num">01 / 02</span>
+  </footer>
+
+</div>
+
+<!-- ==================== PAGINA 2 ==================== -->
+<div class="page">
+
+  <header class="doc-header">
+    <div style="font-family:'Fraunces',Georgia,serif;font-size:20pt;font-weight:300;letter-spacing:-.02em;color:#e8c870;">
+      telesales<span style="color:#888480">.it</span>
+    </div>
+    <div class="doc-title-block">
+      <div class="doc-title">Listino <em>a la carte</em></div>
+      <div class="doc-sub">Prodotti singoli · componibili · attivabili on-demand</div>
+    </div>
+  </header>
+
+  <div class="sec-label">Prodotti singoli — setup + canone + variabile</div>
+
+  <div class="table-wrap">
+    <div class="table-head">
+      <div>Prodotto</div>
+      <div>Setup</div>
+      <div>Canone/mese</div>
+      <div>Variabile</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">AI Voice · Outreach</div><div class="row-sub">Cold calling, qualifica, appointment setting</div></div>
+      <div class="row-val">€ 9.600</div>
+      <div class="row-val gold">€ 1.920</div>
+      <div class="row-val">€ 38 / demo</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Customer Care AI</div><div class="row-sub">Voce + chat + email 24/7</div></div>
+      <div class="row-val">€ 7.680</div>
+      <div class="row-val gold">€ 1.440</div>
+      <div class="row-val">€ 0,96 / ticket</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Talentia · HR AI</div><div class="row-sub">Sourcing + screening vocale + shortlist</div></div>
+      <div class="row-val">€ 5.440</div>
+      <div class="row-val gold">€ 760</div>
+      <div class="row-val">€ 6,40 / candidato</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Outreach AI · Omnicanale</div><div class="row-sub">Email + LinkedIn, sequenze AI-personalizzate</div></div>
+      <div class="row-val">€ 2.560</div>
+      <div class="row-val gold">€ 384 / seat</div>
+      <div class="row-val">—</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">CRM War Room</div><div class="row-sub">Pipeline + scoring + follow-up automatici</div></div>
+      <div class="row-val">€ 3.840</div>
+      <div class="row-val gold">€ 960</div>
+      <div class="row-val">—</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Lead Founder AI · Scraping</div><div class="row-sub">194 paesi · 47 fonti · 127k record/giorno</div></div>
+      <div class="row-val">€ 3.520</div>
+      <div class="row-val gold">€ 512</div>
+      <div class="row-val">€ 0,14 / lead &gt;10k</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Eventia · Agent Eventi</div><div class="row-sub">Ticketing + networking AI + sponsor</div></div>
+      <div class="row-val">€ 2.880</div>
+      <div class="row-val gold">€ 632</div>
+      <div class="row-val">—</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Product Maker AI</div><div class="row-sub">Corsi · playbook · checkout · delivery auto</div></div>
+      <div class="row-val">€ 2.560</div>
+      <div class="row-val gold">€ 512</div>
+      <div class="row-val">—</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Investor Founder</div><div class="row-sub">Match AI · 1.284 fondi · warm intro</div></div>
+      <div class="row-val">€ 0</div>
+      <div class="row-val gold">€ 0</div>
+      <div class="row-val">4–7% su round</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">PA Winner · Bandi</div><div class="row-sub">Finanza agevolata · match + redazione</div></div>
+      <div class="row-val">€ 0</div>
+      <div class="row-val gold">€ 0</div>
+      <div class="row-val">4–7% su erogato</div>
+    </div>
+
+    <div class="table-row">
+      <div><div class="row-product">Consulenza Custom</div><div class="row-sub">Automazioni · integrazioni · AI verticali</div></div>
+      <div class="row-val" style="color:var(--fg3)">Su preventivo</div>
+      <div class="row-val">—</div>
+      <div class="row-val gold">€ 1.120 / giornata</div>
+    </div>
+
+  </div>
+
+  <!-- CUMULATIVE DISCOUNTS -->
+  <div class="sec-label">Sconti multi-prodotto</div>
+
+  <div class="terms-grid" style="margin-bottom:6mm;">
+    <div class="term-card">
+      <div class="term-label">Bundle 2 prodotti</div>
+      <div class="term-title">−5% su tutto</div>
+      <div class="term-body">Su canoni mensili di entrambi i moduli. Non cumulabile con promozioni attive.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-label">Bundle 3+ prodotti</div>
+      <div class="term-title">−10% su tutto</div>
+      <div class="term-body">Su setup e canoni di tutti i moduli. Valido su contratti annuali firmati.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-label">Pagamento annuale anticipato</div>
+      <div class="term-title">Ulteriore −8%</div>
+      <div class="term-body">12 mensilità pagate in un'unica soluzione alla firma. Cumulabile con sconto bundle.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-label">Referral</div>
+      <div class="term-title">1 mese gratuito</div>
+      <div class="term-body">Per ogni cliente referral che firma entro 60 giorni dalla segnalazione. Accreditato sul mese successivo.</div>
+    </div>
+  </div>
+
+  <!-- SLA -->
+  <div class="sec-label">SLA e rimborsi</div>
+
+  <div class="table-wrap" style="margin-bottom:6mm">
+    <div class="table-head" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div>Piano</div>
+      <div>Uptime garantito</div>
+      <div>Sotto soglia → rimborso</div>
+      <div>Latenza voce max</div>
+    </div>
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="row-product">Starter</div>
+      <div class="row-val">99,5%</div>
+      <div class="row-val">10% canone quel mese</div>
+      <div class="row-val">&lt; 1.200 ms</div>
+    </div>
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="row-product">Growth</div>
+      <div class="row-val">99,9%</div>
+      <div class="row-val">15% canone quel mese</div>
+      <div class="row-val">&lt; 900 ms</div>
+    </div>
+    <div class="table-row" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <div class="row-product">Enterprise</div>
+      <div class="row-val">99,99%</div>
+      <div class="row-val">20% canone quel mese</div>
+      <div class="row-val">&lt; 700 ms</div>
+    </div>
+  </div>
+
+  <!-- FINAL GUARANTEE -->
+  <div class="guarantee" style="margin-bottom:4mm">
+    <b>Note legali:</b> i prezzi si intendono IVA esclusa. L'IVA verrà applicata secondo la normativa vigente (attualmente 22%). Per clienti con partita IVA UE extra-Italia, applicabile reverse charge. Tutte le offerte sono soggette alla stipula di un contratto scritto. Il presente listino ha validità 90 giorni dalla data di emissione. Telesales Srl si riserva il diritto di modificare i prezzi con preavviso di 60 giorni ai clienti attivi.
+  </div>
+
+  <footer class="doc-footer">
+    <span>Telesales Srl · info@telesales.it · telesales.it</span>
+    <span>Prezzi IVA esclusa · validità 90 giorni · rev. aprile 2026</span>
+    <span class="page-num">02 / 02</span>
+  </footer>
+
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    document.fonts.ready.then(() => {
+      setTimeout(() => window.print(), 500);
+    });
+  });
+</script>
+</body>
+</html>

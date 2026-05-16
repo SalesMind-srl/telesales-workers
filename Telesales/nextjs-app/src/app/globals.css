@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink-0: #07070a;
+  --ink-1: #0d0e12;
+  --ink-2: #15161c;
+  --ink-3: #1d1e26;
+  --gold-1: #c39446;
+  --gold-2: #d4af6a;
+  --gold-3: #f5e7a8;
+  --blue-brand: #1e3a8a;
+  --blue-mid: #3b5fb8;
+  --line: rgba(255,255,255,.08);
+  --line-gold: rgba(212,175,106,.25);
+  --live: #22c55e;
+  --r-pill: 999px;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--ink-0); color: #ececf1; }
+
+  ::selection { background: rgba(212,175,106,.25); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--ink-1); }
+  ::-webkit-scrollbar-thumb { background: rgba(212,175,106,.3); border-radius: 3px; }
+}
+
+@layer utilities {
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #f5e7a8 0%, #d4af6a 45%, #7a5e18 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .border-gold { border-color: var(--line-gold); }
+  .bg-ink-0 { background-color: var(--ink-0); }
+  .bg-ink-1 { background-color: var(--ink-1); }
+  .bg-ink-2 { background-color: var(--ink-2); }
+  .dot-live {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--live);
+    animation: pulseLive 1.8s ease-in-out infinite;
+  }
+}
