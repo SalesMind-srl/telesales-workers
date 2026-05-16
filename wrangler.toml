@@ -14,7 +14,7 @@ binding = "KV"
 id = "telesales-kv"
 preview_id = "telesales-kv-preview"
 
-[triggers.crons]
+[triggers]
 crons = ["*/5 * * * *"]
 
 [build]
