@@ -31,11 +31,9 @@ jobs:
           secrets: |
             ELEVENLABS_API_KEY
             ANTHROPIC_API_KEY
-            GOOGLE_SHEETS_API_KEY
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
 
       - name: Notify deploy success
         if: success()
