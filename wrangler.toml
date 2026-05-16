@@ -20,13 +20,6 @@ crons = ["*/5 * * * *"]
 [build]
 command = "npm run build"
 cwd = "."
-watch_paths = ["src/**/*.ts"]
-
-[build.upload]
-format = "service-worker"
-
-[env.production.build.upload]
-format = "service-worker"
 
 [vars]
 CHECK_INTERVAL_MINUTES = "5"
