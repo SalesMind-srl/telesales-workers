@@ -11,8 +11,8 @@ routes = [
 
 [[kv_namespaces]]
 binding = "KV"
-id = "telesales-kv"
-preview_id = "telesales-kv-preview"
+id = "de8093d84a674862b18e6fda6f3b56fa"
+preview_id = "de8093d84a674862b18e6fda6f3b56fa"
 
 [triggers]
 crons = ["*/5 * * * *"]
@@ -31,5 +31,5 @@ LOG_LEVEL = "info"
 
 [[env.production.kv_namespaces]]
 binding = "KV"
-id = "telesales-kv-prod"
-preview_id = "telesales-kv-preview"
+id = "de8093d84a674862b18e6fda6f3b56fa"
+preview_id = "de8093d84a674862b18e6fda6f3b56fa"
